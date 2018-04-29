@@ -40,8 +40,6 @@ int uthread_init(int quantum_usecs)
     }
     Thread::set_quantum_length(quantum_usecs);
     Scheduler::init();
-
-
 }
 
 /*
@@ -85,7 +83,11 @@ int uthread_spawn(void (*f)(void)){
 */
 int uthread_terminate(int tid)
 {
-
+    if (Scheduler::remove_ready_thread(tid) == EXIT_SUCCESS)
+    {
+        return EXIT_SUCCESS;
+    }
+    return Scheduler::remove_blocked_thread(tid);
 
 }
 
