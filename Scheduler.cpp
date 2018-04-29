@@ -34,6 +34,19 @@ void Scheduler::add_blocked(Thread *thread) {
     my_threads.add_blocked(thread);
 }
 
+bool Scheduler::exist_by_id_ready(int id) {
+    return my_threads.exist_by_id_ready(id);
+
+}
+
+bool Scheduler::exist_by_id_blocked(int id) {
+    return my_threads.exist_by_id_blocked(id);
+}
+
+int Scheduler::running_thred_id() {
+    return my_threads.running_thred_id();
+}
+
 
 int Scheduler::remove_blocked_thread(int id) {
     if (id <= 0)

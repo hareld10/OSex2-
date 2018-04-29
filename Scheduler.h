@@ -40,6 +40,10 @@ public:
 
     static void add_ready(Thread *thread);
     static void add_blocked(Thread *thread);
+
+    static bool exist_by_id_ready(int id);
+    static bool exist_by_id_blocked(int id);
+    static int running_thred_id();
 };
 
 #endif //OSEX2_SCHEDULER_H
