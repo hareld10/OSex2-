@@ -15,7 +15,7 @@
 
 #define MAX_THREAD_NUM 100 /* maximal number of threads */
 #define STACK_SIZE 4096 /* stack size per thread (in bytes) */
-
+#define FAIL -1
 /* External interface */
 
 
@@ -41,11 +41,17 @@ int uthread_init(int quantum_usecs);
 */
 int uthread_spawn(void (*f)(void)){
 
+    if(Scheduler::total_num_of_threads == MAX_THREAD_NUM){
+        return FAIL;
+    }
+    Scheduler::total_num_of_threads++;
     int id = Scheduler::get_next_id();
     Thread new_thread = Thread(id);
 
+    // add to ready Q
 
-
+    //  Hiw to allocate ?
+    return id;
 }
 
 
