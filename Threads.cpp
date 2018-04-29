@@ -23,6 +23,7 @@ Threads::~Threads() {
         delete t;
     }
     delete _ready_threads;
+    _running_thread = nullptr;
 
     // Delete the blocked threads vector:
     for (Thread* t:(*_blocked_threads)){
@@ -113,3 +114,29 @@ Thread *Threads::get_thread(int tid) {
 
 
 
+
+bool Threads::exist_by_id_ready(int id) {
+    for(Thread* i: *_ready_threads){
+        if(i->id == id){
+            return true;
+        }
+    }
+    return false;
+}
+
+int Threads::running_thred_id(){
+    if (_running_thread == nullptr){
+        std::cout << "Returned nullptr from running_thred_id";
+        return nullptr;
+    }
+    return _running_thread->id;
+}
+
+bool Threads::exist_by_id_blocked(int id) {
+    for(Thread* i: *_blocked_threads){
+        if(i->id == id){
+            return true;
+        }
+    }
+    return false;
+}
