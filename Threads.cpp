@@ -14,14 +14,12 @@ Threads::Threads() {
 
 }
 
-int Threads::add_ready(Thread *thread) {
+void Threads::add_ready(Thread *thread) {
     _ready_threads->push_back(thread);
 
-    return 0;
 }
 
-int Threads::add_blocked(Thread *thread) {
+void Threads::add_blocked(Thread *thread) {
     _blocked_threads->push_back(thread);
 
-    return 0;
 }

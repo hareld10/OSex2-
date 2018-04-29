@@ -38,6 +38,7 @@ int uthread_init(int quantum_usecs)
         return FAIL_CODE;
     }
     Thread::set_quantum_length(quantum_usecs);
+    Scheduler::init();
 
 
 }
