@@ -75,3 +75,14 @@ int Scheduler::remove_ready_thread(int tid) {
     return my_threads.remove_ready_thread(tid);
 }
 
+int Scheduler::get_all_usec() {
+    return my_threads.sum_all_usec();
+
+}
+
+int Scheduler::get_sum_by_id(int tid) {
+    return my_threads.sum_by_id(tid);
+}
+
+
+
