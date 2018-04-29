@@ -32,7 +32,7 @@ public:
 
     bool exist_by_id_ready(int id);
     bool exist_by_id_blocked(int id);
-    int running_thred_id();
+    int running_thread_id();
 
 private:
     Thread *_running_thread;

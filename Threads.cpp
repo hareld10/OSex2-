@@ -124,7 +124,7 @@ bool Threads::exist_by_id_ready(int id) {
     return false;
 }
 
-int Threads::running_thred_id(){
+int Threads::running_thread_id(){
     if (_running_thread == nullptr){
         std::cout << "Returned nullptr from running_thred_id";
         return -1;

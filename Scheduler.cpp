@@ -43,8 +43,8 @@ bool Scheduler::exist_by_id_blocked(int id) {
     return my_threads.exist_by_id_blocked(id);
 }
 
-int Scheduler::running_thred_id() {
-    return my_threads.running_thred_id();
+int Scheduler::running_thread_id() {
+    return my_threads.running_thread_id();
 }
 
 
@@ -64,5 +64,14 @@ int Scheduler::remove_blocked_thread(int id) {
 */
 Thread *Scheduler::get_thread(int tid) {
     return my_threads.get_thread(tid);
+}
+
+
+int Scheduler::remove_ready_thread(int tid) {
+    if (tid <= 0)
+    {
+        return FAIL_CODE;
+    }
+    return my_threads.remove_ready_thread(tid);
 }
 

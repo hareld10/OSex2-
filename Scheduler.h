@@ -22,6 +22,7 @@ public:
     static Threads my_threads;
     static std::priority_queue<int, std::vector<int>,  std::less<int>> pq;
     static int remove_blocked_thread(int id);
+    static int remove_ready_thread(int tid);
 
 
     /**
@@ -42,7 +43,7 @@ public:
 
     static bool exist_by_id_ready(int id);
     static bool exist_by_id_blocked(int id);
-    static int running_thred_id();
+    static int running_thread_id();
 };
 
 #endif //OSEX2_SCHEDULER_H

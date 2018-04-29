@@ -109,7 +109,7 @@ int uthread_block(int tid){
         return SUCCESS_CODE;
     }
 
-    Thread* to_block = Scheduler::get_thred(tid);
+    Thread* to_block = Scheduler::get_thread(tid);
     if (to_block == nullptr){
         return FAIL_CODE;
     }
@@ -127,10 +127,10 @@ int uthread_block(int tid){
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_resume(int tid){
-    if(Scheduler::running_thred_id()||(Scheduler::exist_by_id_ready(tid))){
+    if(Scheduler::running_thread_id()||(Scheduler::exist_by_id_ready(tid))){
         return 0;
     }
-    Thread* to_resume = get_thred(tid);
+    Thread* to_resume = Scheduler::get_thread(tid);
     Scheduler::add_ready(to_resume);
     return SUCCESS_CODE;
 
