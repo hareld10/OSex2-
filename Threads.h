@@ -10,7 +10,6 @@
 #include <iostream>
 
 
-
 class Threads
 {
 
@@ -18,9 +17,6 @@ public:
     explicit Threads();
     void add_ready(Thread* thread);
     void add_blocked(Thread* thread);
-
-
-
 
 private:
 

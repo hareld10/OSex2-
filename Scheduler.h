@@ -8,12 +8,15 @@
 
 #include <vector>
 #include <queue>
+#include "Thread.h"
+#include "Threads.h"
 
 class Scheduler
 {
 
 public:
     static int total_num_of_threads;
+    static Threads my_threads;
     static std::priority_queue<int, std::vector<int>,  std::less<int>> pq;
 
     // stav needs to call that
@@ -21,6 +24,8 @@ public:
     static int get_next_id();
     static void insert_id(int _id);
 
+    static void add_ready(Thread *thread);
+    static void add_blocked(Thread *thread);
 };
 
 #endif //OSEX2_SCHEDULER_H
