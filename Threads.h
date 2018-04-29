@@ -21,6 +21,8 @@ public:
     void add_blocked(Thread* thread);
     int remove_blocked_thread(int id);
     int remove_ready_thread(int id);
+    int sum_all_usec();
+    int sum_by_id(int tid);
 
     /**
      * Removes the thread from its' vector and returns it.

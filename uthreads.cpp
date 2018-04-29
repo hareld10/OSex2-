@@ -1,4 +1,4 @@
-//
+#include "Scheduler.h"//
 // Created by hareld10 on 4/24/18.
 //
 
@@ -155,8 +155,9 @@ int uthread_sync(int tid);
  * Description: This function returns the thread ID of the calling thread.
  * Return value: The ID of the calling thread.
 */
-int uthread_get_tid();
-
+int uthread_get_tid() {
+    return Scheduler::running_thread_id();
+}
 
 /*
  * Description: This function returns the total number of quantums that were
@@ -166,7 +167,9 @@ int uthread_get_tid();
  * should be increased by 1.
  * Return value: The total number of quantums.
 */
-int uthread_get_total_quantums();
+int uthread_get_total_quantums(){
+    return Scheduler::get_all_usec();
+}
 
 
 /*
@@ -178,7 +181,9 @@ int uthread_get_total_quantums();
  * thread with ID tid exists it is considered as an error.
  * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
 */
-int uthread_get_quantums(int tid);
+int uthread_get_quantums(int tid) {
+    return Scheduler::get_sum_by_id(tid);
+}
 
 #endif
 

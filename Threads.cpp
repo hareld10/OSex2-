@@ -41,6 +41,7 @@ void Threads::add_ready(Thread *thread) {
 }
 
 void Threads::add_blocked(Thread *thread) {
+    sigsetjmp(thread->env, 1);
     _blocked_threads->push_back(thread);
 
 }
@@ -112,9 +113,6 @@ Thread *Threads::get_thread(int tid) {
 }
 
 
-
-
-
 bool Threads::exist_by_id_ready(int id) {
     for(Thread* i: *_ready_threads){
         if(i->id == id){
@@ -140,3 +138,34 @@ bool Threads::exist_by_id_blocked(int id) {
     }
     return false;
 }
+
+int Threads::sum_all_usec() {
+    int sum = 0;
+    for(Thread* i: *_ready_threads){
+        sum+=i->total_quantum;
+    }
+    for(Thread* i: *_blocked_threads){
+        sum+=i->total_quantum;
+    }
+    return sum+_running_thread->total_quantum;
+}
+
+int Threads::sum_by_id(int tid) {
+    for(Thread* i: *_ready_threads){
+        if(i->id == tid){
+            return i->total_quantum;
+        }
+    }
+    for(Thread* i: *_blocked_threads){
+        if(i->id == tid){
+            return i->total_quantum;
+        }
+    }
+
+    if(_running_thread->id == tid){
+        return _running_thread->total_quantum;
+    }
+    std::cout << "Error in Sum by id";
+    return FAIL_CODE;
+}
+
