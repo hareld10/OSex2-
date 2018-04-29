@@ -6,6 +6,7 @@
 #define _UTHREADS_H
 
 #include "Thread.h"
+#include "Threads.h"
 #include "Scheduler.h"
 /*
  * User-Level Threads Library (uthreads)
@@ -62,11 +63,10 @@ int uthread_spawn(void (*f)(void)){
     //get next id for new Thread
     int id = Scheduler::get_next_id();
 
-    Thread new_thread = Thread(id);
+    Thread new_thread = Thread(id, f);
     // Add to ready list
-    Threads::add_ready(new_thread);
+    Scheduler::add_ready(&new_thread);
 
-    //  How to allocate ?
     return id;
 }
 

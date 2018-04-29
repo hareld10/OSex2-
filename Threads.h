@@ -9,10 +9,6 @@
 #include "Thread.h"
 #include <iostream>
 
-#define READY 0;
-#define RUNNING 1;
-#define BLOCKED 2;
-
 
 class Threads
 {
@@ -23,9 +19,6 @@ public:
     explicit Threads();
     int add_ready(Thread* thread);
     int add_blocked(Thread* thread);
-
-
-
 
 private:
 
