@@ -103,7 +103,9 @@ void setup(void)
 {
   address_t sp, pc;
 
-  sp = (address_t)stack1 + STACK_SIZE - sizeof(address_t);
+
+
+    sp = (address_t)stack1 + STACK_SIZE - sizeof(address_t);
   pc = (address_t)f;
   sigsetjmp(env[0], 1);
   (env[0]->__jmpbuf)[JB_SP] = translate_address(sp);
