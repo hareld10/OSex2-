@@ -5,10 +5,13 @@
 #ifndef _UTHREADS_H
 #define _UTHREADS_H
 
+#include "Thread.h"
+#include "Scheduler.h"
 /*
  * User-Level Threads Library (uthreads)
  * Author: OS, os@cs.huji.ac.il
  */
+
 
 #define MAX_THREAD_NUM 100 /* maximal number of threads */
 #define STACK_SIZE 4096 /* stack size per thread (in bytes) */
@@ -36,7 +39,14 @@ int uthread_init(int quantum_usecs);
  * Return value: On success, return the ID of the created thread.
  * On failure, return -1.
 */
-int uthread_spawn(void (*f)(void));
+int uthread_spawn(void (*f)(void)){
+
+    int id = Scheduler::get_next_id();
+    Thread new_thread = Thread(id);
+
+    
+
+}
 
 
 /*

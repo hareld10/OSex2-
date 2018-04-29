@@ -5,9 +5,9 @@
 #ifndef OSEX2_THREAD_H
 #define OSEX2_THREAD_H
 #include <sys/time.h>
-//#define READY 0;
-//#define RUNNING 1;
-//#define BLOCKED 2;
+#define READY 0;
+#define RUNNING 1;
+#define BLOCKED 2;
 
 class Thread
 {
