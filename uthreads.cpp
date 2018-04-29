@@ -133,7 +133,6 @@ int uthread_resume(int tid){
     Thread* to_resume = Scheduler::get_thread(tid);
     Scheduler::add_ready(to_resume);
     return SUCCESS_CODE;
-
 }
 
 
