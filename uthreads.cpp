@@ -44,7 +44,7 @@ int uthread_spawn(void (*f)(void)){
     int id = Scheduler::get_next_id();
     Thread new_thread = Thread(id);
 
-    
+
 
 }
 
