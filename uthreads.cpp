@@ -55,7 +55,7 @@ int uthread_init(int quantum_usecs)
 int uthread_spawn(void (*f)(void)){
 
     if(Scheduler::total_num_of_threads == MAX_THREAD_NUM){
-        return FAIL;
+        return FAIL_CODE;
     }
     Scheduler::total_num_of_threads++;
     int id = Scheduler::get_next_id();
