@@ -5,6 +5,9 @@
 #ifndef _UTHREADS_H
 #define _UTHREADS_H
 
+#include "Thread.h"
+
+
 /*
  * User-Level Threads Library (uthreads)
  * Author: OS, os@cs.huji.ac.il
@@ -12,8 +15,13 @@
 
 #define MAX_THREAD_NUM 100 /* maximal number of threads */
 #define STACK_SIZE 4096 /* stack size per thread (in bytes) */
+#define FAIL_CODE (-1)
+
+
+
 
 /* External interface */
+
 
 
 /*
@@ -24,7 +32,16 @@
  * function with non-positive quantum_usecs.
  * Return value: On success, return 0. On failure, return -1.
 */
-int uthread_init(int quantum_usecs);
+int uthread_init(int quantum_usecs)
+{
+    if(quantum_usecs <= 0)
+    {
+        return FAIL_CODE;
+    }
+    Thread::set_quantum_length(quantum_usecs);
+
+
+}
 
 /*
  * Description: This function creates a new thread, whose entry point is the
