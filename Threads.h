@@ -22,6 +22,15 @@ public:
     int remove_blocked_thread(int id);
     int remove_ready_thread(int id);
 
+    /**
+     * Removes the thread from its' vector and returns it.
+     * @param tid id of wanted thread.
+     * @return wanted thread if exists, nullptr o.w..
+     */
+    Thread* get_thread(int tid);
+
+
+
 private:
 
     std::vector<Thread*> *_ready_threads;

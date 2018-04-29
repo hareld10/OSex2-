@@ -44,10 +44,12 @@ int Scheduler::remove_blocked_thread(int id) {
 }
 
 
-int Scheduler::remove_ready_thread(int id) {
-    if (id <= 0)
-    {
-        return FAIL_CODE;
-    }
-    return my_threads.remove_ready_thread(id);
+/**
+* Removes the thread from its' vector and returns it.
+* @param tid id of wanted thread.
+* @return wanted thread if exists, nullptr o.w..
+*/
+Thread *Scheduler::get_thread(int tid) {
+    return my_threads.get_thread(tid);
 }
+

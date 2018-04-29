@@ -22,7 +22,15 @@ public:
     static Threads my_threads;
     static std::priority_queue<int, std::vector<int>,  std::less<int>> pq;
     static int remove_blocked_thread(int id);
-    static int remove_ready_thread(int id);
+
+
+    /**
+    * Removes the thread from its' vector and returns it.
+    * @param tid id of wanted thread.
+    * @return wanted thread if exists, nullptr o.w..
+    */
+    static Thread* get_thread(int tid);
+
 
     // stav needs to call that
     static void init();

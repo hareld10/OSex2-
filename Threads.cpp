@@ -78,5 +78,38 @@ int Threads::remove_ready_thread(int id) {
     return FAIL_CODE;
 }
 
+/**
+ * Removes the thread from its' vector and returns it.
+ * @param tid id of wanted thread.
+ * @return wanted thread if exists, nullptr o.w..
+ */
+Thread *Threads::get_thread(int tid) {
+    auto iter = _blocked_threads->begin();
+    for( ; iter != _blocked_threads->end(); ++iter)
+    {
+        // Found thread, add it to the ready list:
+        if ((*iter)->id == tid)
+        {
+            Thread* temp = *iter;
+            _blocked_threads->erase(iter);
+            return temp;
+        }
+    }
+    iter = _ready_threads->begin();
+    for( ; iter != _ready_threads->end(); ++iter)
+    {
+        // Found thread, add it to the ready list:
+        if ((*iter)->id == tid)
+        {
+            Thread* temp = *iter;
+            _ready_threads->erase(iter);
+            return temp;
+        }
+    }
+    // Thread not found:
+    return nullptr;
+}
+
+
 
 
