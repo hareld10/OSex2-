@@ -6,11 +6,15 @@
 #define OSEX2_SCHEDULER_H
 
 
+#include <vector>
+#include <queue>
+
 class Scheduler
 {
 
 public:
-    static priority_queue<int, vector<int>,  less<int>> pq;
+    static int total_num_of_threads;
+    static std::priority_queue<int, std::vector<int>,  std::less<int>> pq;
 
     // stav needs to call that
     static void init();

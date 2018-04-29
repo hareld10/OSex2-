@@ -6,8 +6,7 @@
 #define _UTHREADS_H
 
 #include "Thread.h"
-
-
+#include "Scheduler.h"
 /*
  * User-Level Threads Library (uthreads)
  * Author: OS, os@cs.huji.ac.il
@@ -53,7 +52,20 @@ int uthread_init(int quantum_usecs)
  * Return value: On success, return the ID of the created thread.
  * On failure, return -1.
 */
-int uthread_spawn(void (*f)(void));
+int uthread_spawn(void (*f)(void)){
+
+    if(Scheduler::total_num_of_threads == MAX_THREAD_NUM){
+        return FAIL;
+    }
+    Scheduler::total_num_of_threads++;
+    int id = Scheduler::get_next_id();
+    Thread new_thread = Thread(id);
+
+    // add to ready Q
+
+    //  Hiw to allocate ?
+    return id;
+}
 
 
 /*
