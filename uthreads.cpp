@@ -53,17 +53,20 @@ int uthread_init(int quantum_usecs)
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void)){
-
+    // check if not exceeded MAX NUM
     if(Scheduler::total_num_of_threads == MAX_THREAD_NUM){
         return FAIL_CODE;
     }
     Scheduler::total_num_of_threads++;
+
+    //get next id for new Thread
     int id = Scheduler::get_next_id();
+
     Thread new_thread = Thread(id);
+    // Add to ready list
+    Threads::add_ready(new_thread);
 
-    // add to ready Q
-
-    //  Hiw to allocate ?
+    //  How to allocate ?
     return id;
 }
 

@@ -14,7 +14,7 @@ class Thread
 {
 
 
-public:
+public:76y
     explicit Thread(int _id);
     void set_id(int id);
     static void set_quantum_length(int length);
