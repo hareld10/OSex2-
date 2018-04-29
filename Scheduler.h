@@ -22,6 +22,7 @@ public:
     static Threads my_threads;
     static std::priority_queue<int, std::vector<int>,  std::less<int>> pq;
     static int remove_blocked_thread(int id);
+    static int remove_ready_thread(int tid);
 
 
     /**

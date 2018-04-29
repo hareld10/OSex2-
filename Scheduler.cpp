@@ -53,3 +53,12 @@ Thread *Scheduler::get_thread(int tid) {
     return my_threads.get_thread(tid);
 }
 
+
+int Scheduler::remove_ready_thread(int tid) {
+    if (tid <= 0)
+    {
+        return FAIL_CODE;
+    }
+    return my_threads.remove_ready_thread(tid);
+}
+
