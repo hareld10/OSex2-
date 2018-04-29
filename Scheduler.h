@@ -8,8 +8,11 @@
 
 #include <vector>
 #include <queue>
+#include <algorithm>
 #include "Thread.h"
 #include "Threads.h"
+#define FAIL_CODE (-1)
+
 
 class Scheduler
 {
@@ -18,6 +21,8 @@ public:
     static int total_num_of_threads;
     static Threads my_threads;
     static std::priority_queue<int, std::vector<int>,  std::less<int>> pq;
+    static int remove_blocked_thread(int id);
+    static int remove_ready_thread(int id);
 
     // stav needs to call that
     static void init();

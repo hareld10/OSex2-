@@ -64,9 +64,9 @@ int uthread_spawn(void (*f)(void)){
     //get next id for new Thread
     int id = Scheduler::get_next_id();
 
-    Thread new_thread = Thread(id, f);
+    auto new_thread = new Thread(id, f);
     // Add to ready list
-    Scheduler::add_ready(&new_thread);
+    Scheduler::add_ready(new_thread);
 
     return id;
 }
@@ -83,7 +83,11 @@ int uthread_spawn(void (*f)(void)){
  * terminated and -1 otherwise. If a thread terminates itself or the main
  * thread is terminated, the function does not return.
 */
-int uthread_terminate(int tid);
+int uthread_terminate(int tid)
+{
+
+
+}
 
 
 /*

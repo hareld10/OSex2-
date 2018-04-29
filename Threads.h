@@ -8,6 +8,7 @@
 #include <sys/time.h>
 #include "Thread.h"
 #include <iostream>
+#define FAIL_CODE (-1)
 
 
 class Threads
@@ -15,13 +16,17 @@ class Threads
 
 public:
     explicit Threads();
+    ~Threads();
     void add_ready(Thread* thread);
     void add_blocked(Thread* thread);
+    int remove_blocked_thread(int id);
+    int remove_ready_thread(int id);
 
 private:
 
     std::vector<Thread*> *_ready_threads;
     std::vector<Thread*> *_blocked_threads;
+
 
 
 };

@@ -34,3 +34,4 @@ address_t Thread::translate_address(address_t addr) {
     : "0" (addr));
     return ret;
 }
+

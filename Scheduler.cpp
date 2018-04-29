@@ -34,3 +34,20 @@ void Scheduler::add_blocked(Thread *thread) {
     my_threads.add_blocked(thread);
 }
 
+
+int Scheduler::remove_blocked_thread(int id) {
+    if (id <= 0)
+    {
+        return FAIL_CODE;
+    }
+    return my_threads.remove_blocked_thread(id);
+}
+
+
+int Scheduler::remove_ready_thread(int id) {
+    if (id <= 0)
+    {
+        return FAIL_CODE;
+    }
+    return my_threads.remove_ready_thread(id);
+}
