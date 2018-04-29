@@ -16,7 +16,7 @@
 #define MAX_THREAD_NUM 100 /* maximal number of threads */
 #define STACK_SIZE 4096 /* stack size per thread (in bytes) */
 #define FAIL_CODE (-1)
-
+#define SUCCESS_CODE 0
 
 
 
@@ -64,9 +64,9 @@ int uthread_spawn(void (*f)(void)){
     //get next id for new Thread
     int id = Scheduler::get_next_id();
 
-    Thread new_thread = Thread(id, f);
+    auto *new_thread = new Thread(id, f);
     // Add to ready list
-    Scheduler::add_ready(&new_thread);
+    Scheduler::add_ready(new_thread);
 
     return id;
 }
@@ -95,7 +95,22 @@ int uthread_terminate(int tid);
  * effect and is not considered as an error.
  * Return value: On success, return 0. On failure, return -1.
 */
-int uthread_block(int tid);
+int uthread_block(int tid){
+    if(tid == 0){
+        return FAIL_CODE;
+    }
+    if(Scheduler::exist_by_id_blocked(tid)){
+        return SUCCESS_CODE;
+    }
+
+    Thread* to_block = Scheduler::get_thred(tid);
+    if (to_block == nullptr){
+        return FAIL_CODE;
+    }
+    Scheduler::add_blocked(to_block);
+    return SUCCESS_CODE;
+
+}
 
 
 /*
@@ -105,7 +120,15 @@ int uthread_block(int tid);
  * ID tid exists it is considered as an error.
  * Return value: On success, return 0. On failure, return -1.
 */
-int uthread_resume(int tid);
+int uthread_resume(int tid){
+    if(Scheduler::running_thred_id()||(Scheduler::exist_by_id_ready(tid))){
+        return 0;
+    }
+    Thread* to_resume = get_thred(tid);
+    Scheduler::add_ready(to_resume);
+    return SUCCESS_CODE;
+
+}
 
 
 /*
