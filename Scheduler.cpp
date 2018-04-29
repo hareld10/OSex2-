@@ -43,8 +43,8 @@ bool Scheduler::exist_by_id_blocked(int id) {
     return my_threads.exist_by_id_blocked(id);
 }
 
-int Scheduler::running_thred_id() {
-    return my_threads.running_thred_id();
+int Scheduler::running_thread_id() {
+    return my_threads.running_thread_id();
 }
 
 
