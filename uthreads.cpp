@@ -16,7 +16,7 @@
 #define STACK_SIZE 4096 /* stack size per thread (in bytes) */
 #define FAIL_CODE (-1)
 #define SUCCESS_CODE 0
-
+int _quantum_usecs;
 
 
 /* External interface */
@@ -51,27 +51,57 @@ void signalHandler(bool block)
  */
 void switchThreads(int sig)
 {
+    signalHandler(true);
     auto currentThread = Threads::get_thread(Threads::running_thread_id());
     auto nextThread = Threads::getReadyThread();
     if (nextThread == nullptr) // Ready queue is empty
     {
         return;
     }
-
-    int ret_val = sigsetjmp(currentThread->env, 1);
-    if (ret_val == 1)  //sigsetjmp failed
+    if(currentThread != nullptr)
     {
-        return;
+        int ret_val = sigsetjmp(*(currentThread->env), 1);
+        if (ret_val == 1)  //sigsetjmp failed
+        {
+            std::cout<<"switch error";
+            return;
+        }
+        printf("SWITCH: ret_val=%d\n", ret_val);
+
     }
-    printf("SWITCH: ret_val=%d\n", ret_val);
     Threads::setRunningThread(nextThread);
     Threads::add_ready(currentThread);
     nextThread->add_one_quan();
-    siglongjmp(nextThread->env ,1);
+    resetTimer(_quantum_usecs);
+    signalHandler(false);
+
+    siglongjmp(*(nextThread->env) ,1);
+
+
 
     //todo What else?
 }
 
+
+/**
+ * Resets the time count for this process when either, the quantom for a thread ends, or threads are switched due to
+ * termination or blocking of the running thread.
+ */
+void resetTimer(int quantum_usecs)
+{
+
+    signal(SIGVTALRM, switchThreads);
+
+    timer.it_value.tv_sec = quantum_usecs / 1000000;  /* first time interval, seconds part */
+    timer.it_value.tv_usec = quantum_usecs % 1000000; /* first time interval, microseconds part */
+    timer.it_interval.tv_sec = quantum_usecs / 1000000;  /* following time intervals, seconds part */
+    timer.it_interval.tv_usec = quantum_usecs % 1000000; /* following time intervals, microseconds part */
+    if (setitimer(ITIMER_VIRTUAL, &timer, NULL) == FAIL_CODE)
+    { //if the set timer fails, print out a system call error and exit with the value 1
+        std::cout<<"reset fail";
+        exit(1);
+    }
+}
 
 /*
  * Description: This function initializes the thread library.
@@ -88,16 +118,16 @@ int uthread_init(int quantum_usecs)
         return FAIL_CODE;
     }
     Thread::set_quantum_length(quantum_usecs);
-
+    _quantum_usecs = quantum_usecs;
 
     // Install timer_handler as the signal handler for SIGVTALRM:
     sa.sa_handler = &switchThreads;
-    if (sigaction(SIGALRM, &sa, nullptr) < 0) {
+    if (sigaction(SIGVTALRM, &sa, nullptr) < 0) {
         printf("sigaction error.");
     }
-    timer.it_value.tv_usec = quantum_usecs;		// first time interval, microseconds part
-    timer.it_interval.tv_usec = quantum_usecs;	// following time intervals, microseconds part
+
     Threads::init();
+    resetTimer(quantum_usecs);
 }
 
 /*

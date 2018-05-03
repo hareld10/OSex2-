@@ -6,7 +6,7 @@
 
 
 int Threads::total_num_of_threads = 0;
-std::priority_queue<int, std::vector<int>,  std::less<int>> Threads::pq;
+std::priority_queue<int, std::vector<int>,  std::greater<int>> Threads::pq;
 std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
 std::deque<Thread*> *Threads::_ready_threads;
 std::deque<Thread*> *Threads::_blocked_threads;
@@ -15,7 +15,7 @@ Thread *Threads::_running_thread;
 void Threads::init() {
     _ready_threads = new std::deque<Thread*>;
     _blocked_threads = new std::deque<Thread*>;
-    for (int i = 0; i < MAX_THREAD_NUM; i ++)
+    for (int i = 1; i < MAX_THREAD_NUM; i ++)
     {
         pq.push(i);
         syncing[i] = new std::vector<int>();
@@ -146,6 +146,7 @@ bool Threads::exist_by_id_ready(int id) {
 
 int Threads::running_thread_id(){
     if (_running_thread == nullptr){
+
         std::cout << "Returned nullptr from running_thread_id";
         return -1;
     }

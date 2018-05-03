@@ -15,10 +15,23 @@ Thread::Thread(int _id, void (*f)(void)) {
     sp = (address_t)stack + STACK_SIZE - sizeof(address_t);
     pc = (address_t)f;
     // save state and save mask
-    sigsetjmp(env, 1);
-    (env->__jmpbuf)[JB_SP] = translate_address(sp);
-    (env->__jmpbuf)[JB_PC] = translate_address(pc);
-    sigemptyset(&env->__saved_mask);
+
+    env = (sigjmp_buf*)new sigjmp_buf();
+    int ret_val = sigsetjmp((*env), 1);
+    if (ret_val == 1) {
+        return;
+    }
+
+    ((*env)->__jmpbuf)[JB_SP] = translate_address(sp);
+    ((*env)->__jmpbuf)[JB_PC] = translate_address(pc);
+    sigemptyset(&((*env)->__saved_mask));
+
+//
+//
+//    sigsetjmp(env, 1);
+//    (env->__jmpbuf)[JB_SP] = translate_address(sp);
+//    (env->__jmpbuf)[JB_PC] = translate_address(pc);
+//    sigemptyset(&env->__saved_mask);
 }
 
 void Thread::set_id(int _id) {

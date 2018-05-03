@@ -15,9 +15,9 @@
 
 /* External interface */
 
-struct sigaction sa;
-struct itimerval timer;
-sigset_t signals;
+static struct sigaction sa;
+static struct itimerval timer;
+static sigset_t signals;
 
 
 
@@ -124,6 +124,10 @@ int uthread_get_total_quantums();
  * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
 */
 int uthread_get_quantums(int tid);
+
+
+void resetTimer(int _quantum_usecs);
+
 
 #endif
 
