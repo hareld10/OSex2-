@@ -1,4 +1,3 @@
-#include "Scheduler.h"//
 // Created by hareld10 on 4/24/18.
 //
 
@@ -7,7 +6,6 @@
 
 #include "Thread.h"
 #include "Threads.h"
-#include "Scheduler.h"
 #include "uthreads.h"
 /*
  * User-Level Threads Library (uthreads)

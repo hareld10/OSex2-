@@ -1,16 +1,15 @@
 //
 // Created by mstav on 4/29/18.
 //
-#include <vector>
-#include "uthreads.h"
 #include "Threads.h"
+
 
 
 int Threads::total_num_of_threads = 0;
 std::priority_queue<int, std::vector<int>,  std::less<int>> Threads::pq;
 std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
-std::vector<Thread*> *Threads::_ready_threads;
-std::vector<Thread*> *Threads::_blocked_threads;
+std::deque<Thread*> *Threads::_ready_threads;
+std::deque<Thread*> *Threads::_blocked_threads;
 Thread *Threads::_running_thread;
 
 
