@@ -17,6 +17,7 @@
 
 struct sigaction sa;
 struct itimerval timer;
+sigset_t signals;
 
 
 

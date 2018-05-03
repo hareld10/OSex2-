@@ -202,7 +202,7 @@ int Threads::sum_by_id(int tid) {
 
 
 void Threads::sync(int tid) {
-    syncing[running_thread_id()]->push_back(tid);
+    syncing[tid]->push_back(running_thread_id());
 }
 
 int Threads::get_next_id() {
@@ -239,5 +239,10 @@ void Threads::setRunningThread(Thread *thread)
 
 Thread *Threads::get_running_thread() {
     return _running_thread;
+}
+
+void Threads::addTid(int tid)
+{
+    pq.push(tid);
 }
 

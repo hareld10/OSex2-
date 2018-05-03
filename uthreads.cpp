@@ -21,6 +21,29 @@
 
 /* External interface */
 
+/**
+ *  Either blocks or unblocks all the signals according to the boolean value
+ * @param block true iff we want to block all signals
+ */
+void signalHandler(bool block)
+{
+    if (block)
+    {
+        if (sigprocmask (SIG_BLOCK, &signals, nullptr) == FAIL_CODE)
+        {
+            std::cerr<<"Failed in blocking signals";
+            exit(1);
+        }
+    }
+    else
+    {
+        if (sigprocmask (SIG_UNBLOCK, &signals, nullptr) == FAIL_CODE)
+        {
+            std::cerr<<"Failed in blocking signals";
+            exit(1);
+        }
+    }
+}
 
 
 /**
@@ -89,6 +112,8 @@ int uthread_init(int quantum_usecs)
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void)){
+    signalHandler(true);  // Block all signals
+
     // check if not exceeded MAX NUM
     if(Threads::total_num_of_threads == MAX_THREAD_NUM){
         return FAIL_CODE;
@@ -102,6 +127,7 @@ int uthread_spawn(void (*f)(void)){
     // Add to ready list
     Threads::add_ready(new_thread);
 
+    signalHandler(false);  // Free signals
     return id;
 }
 
@@ -119,17 +145,21 @@ int uthread_spawn(void (*f)(void)){
 */
 int uthread_terminate(int tid)
 {
+    signalHandler(true);  // Block all signals
+
     if(tid == 0){
         exit(EXIT_SUCCESS);
     }
 
     Threads::free_syncing_threds(tid);
-
     if (Threads::get_thread(tid) == nullptr){
         return FAIL_CODE;
     }
-    return SUCCESS_CODE;
 
+    Threads::addTid(tid);  // Add the now free id to the id pool
+    signalHandler(false);  // unBlock all signals
+
+    return SUCCESS_CODE;
 }
 
 
@@ -143,6 +173,8 @@ int uthread_terminate(int tid)
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_block(int tid){
+    signalHandler(true);  // Block all signals
+
     if(tid == 0){
         return FAIL_CODE;
     }
@@ -155,6 +187,8 @@ int uthread_block(int tid){
         return FAIL_CODE;
     }
     Threads::add_blocked(to_block);
+    signalHandler(false);  // unBlock all signals
+
     return SUCCESS_CODE;
 
 }
@@ -168,11 +202,15 @@ int uthread_block(int tid){
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_resume(int tid){
+    signalHandler(true);  // Block all signals
+
     if(Threads::running_thread_id()||(Threads::exist_by_id_ready(tid))){
         return 0;
     }
     Thread* to_resume = Threads::get_thread(tid);
     Threads::add_ready(to_resume);
+    signalHandler(false);  // unBlock all signals
+
     return SUCCESS_CODE;
 }
 
@@ -191,12 +229,14 @@ int uthread_resume(int tid){
 */
 int uthread_sync(int tid)
 {
-    // block all signals
+    signalHandler(true);  // Block all signals
     if(Threads::running_thread_id() == tid){
         std::cout<< "running thread calles sync";
         exit(EXIT_FAILURE);
     }
     Thread *cur_running = Threads::get_running_thread();
+    signalHandler(false);  // unBlock all signals
+
 
 }
 

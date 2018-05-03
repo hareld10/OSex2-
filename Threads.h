@@ -28,6 +28,7 @@ public:
 
     static void init();
     ~Threads();
+    static void addTid(int tid);
     static void add_ready(Thread* thread);
     static void add_blocked(Thread* thread);
     static int remove_blocked_thread(int id);
@@ -45,6 +46,7 @@ public:
     static void free_syncing_threds(int tid);
 
     static Thread* get_running_thread();
+
 
 };
 
