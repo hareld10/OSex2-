@@ -21,8 +21,8 @@ public:
     static int total_num_of_threads;
     static std::priority_queue<int, std::vector<int>,  std::less<int>> pq;
     static std::vector<int> *syncing[];
-    static std::vector<Thread*> *_ready_threads;
-    static std::vector<Thread*> *_blocked_threads;
+    static std::deque<Thread*> *_ready_threads;
+    static std::deque<Thread*> *_blocked_threads;
     static Thread *_running_thread;
 
     static void init();
@@ -38,9 +38,10 @@ public:
     static bool exist_by_id_ready(int id);
     static bool exist_by_id_blocked(int id);
     static int get_next_id();
+    static void setRunningThread(Thread* thread);
     static int running_thread_id();
-    static void free_syncing_threds(int tid);
     static Thread* getReadyThread();
+    static void free_syncing_threds(int tid);
 
 
 };

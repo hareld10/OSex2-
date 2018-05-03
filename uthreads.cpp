@@ -43,6 +43,8 @@ void switchThreads(int sig)
         return;
     }
     printf("SWITCH: ret_val=%d\n", ret_val);
+    Threads::setRunningThread(nextThread);
+    Threads::add_ready(currentThread);
     siglongjmp(nextThread->env ,1);
 
     //todo What else?

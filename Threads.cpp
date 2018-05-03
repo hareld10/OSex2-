@@ -13,6 +13,26 @@ std::vector<Thread*> *Threads::_ready_threads;
 std::vector<Thread*> *Threads::_blocked_threads;
 Thread *Threads::_running_thread;
 
+
+
+
+
+
+void Threads::init() {
+    _ready_threads = new std::deque<Thread*>;
+    _blocked_threads = new std::deque<Thread*>;
+    for (int i = 0; i < MAX_THREAD_NUM; i ++)
+    {
+        pq.push(i);
+        syncing[i] = new std::vector<int>();
+    }
+
+}
+
+
+
+
+
 /**
  *  Destructor
  */
@@ -29,6 +49,7 @@ Threads::~Threads() {
         delete t;
     }
     delete _blocked_threads;
+    _blocked_threads = nullptr;
 
     int i=1;
     while(i < MAX_THREAD_NUM)
@@ -180,16 +201,6 @@ int Threads::sum_by_id(int tid) {
     return FAIL_CODE;
 }
 
-void Threads::init() {
-    _ready_threads = new std::vector<Thread*>;
-    _blocked_threads = new std::vector<Thread*>;
-    for (int i = 0; i < MAX_THREAD_NUM; i ++)
-    {
-        pq.push(i);
-        syncing[i] = new std::vector<int>();
-    }
-
-}
 
 void Threads::sync(int tid) {
     syncing[running_thread_id()]->push_back(tid);
@@ -206,7 +217,24 @@ void Threads::free_syncing_threds(int tid) {
 
 }
 
-Thread *Threads::getReadyThread() {
-    return nullptr;
+/**
+ * returns the next ready thread and pops it from the queue
+ * @return
+ */
+Thread* Threads::getReadyThread() {
+    if (_ready_threads->empty())
+    {
+        return nullptr;
+    }
+    auto temp = _ready_threads->front();
+    _ready_threads->pop_front();
+    return temp;
+
+}
+
+void Threads::setRunningThread(Thread *thread)
+{
+    _running_thread = thread;
+
 }
 
