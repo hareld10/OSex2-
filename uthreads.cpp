@@ -148,7 +148,11 @@ int uthread_resume(int tid){
  * the BLOCKED state a scheduling decision should be made.
  * Return value: On success, return 0. On failure, return -1.
 */
-int uthread_sync(int tid);
+int uthread_sync(int tid)
+{
+
+
+}
 
 
 /*

@@ -91,7 +91,10 @@ int Scheduler::get_sum_by_id(int tid) {
 
 
 
-
+/**
+ * add tid as a thread that's waiting for the running thread
+ * @param tid
+ */
 void Scheduler::sync(int tid) {
     syncing[running_thread_id()]->push_back(tid);
 

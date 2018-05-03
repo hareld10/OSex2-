@@ -54,13 +54,18 @@ public:
     static int running_thread_id();
     static int get_all_usec();
     static int get_sum_by_id(int tid);
+
+
+
+
+
+
+
+
+
+
+
     static std::vector<int> *syncing[];
-
-
-
-
-
-
 
 };
 

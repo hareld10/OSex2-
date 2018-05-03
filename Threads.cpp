@@ -108,6 +108,11 @@ Thread *Threads::get_thread(int tid) {
             return temp;
         }
     }
+
+    if (tid == running_thread_id())
+    {
+        return _running_thread;
+    }
     // Thread not found:
     return nullptr;
 }
