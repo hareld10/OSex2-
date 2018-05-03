@@ -66,6 +66,7 @@ void switchThreads(int sig)
     printf("SWITCH: ret_val=%d\n", ret_val);
     Threads::setRunningThread(nextThread);
     Threads::add_ready(currentThread);
+    nextThread->add_one_quan();
     siglongjmp(nextThread->env ,1);
 
     //todo What else?
@@ -149,7 +150,6 @@ int uthread_terminate(int tid)
         exit(EXIT_SUCCESS);
     }
 
-    Threads::free_syncing_threds(tid);
     if (Threads::get_thread(tid) == nullptr){
         return FAIL_CODE;
     }

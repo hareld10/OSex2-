@@ -162,7 +162,7 @@ bool Threads::exist_by_id_blocked(int id) {
 }
 
 int Threads::sum_all_usec() {
-    int sum = 0;
+    int sum = 1;
     for(Thread* i: *_ready_threads){
         sum+=i->total_quantum;
     }
@@ -202,7 +202,8 @@ int Threads::get_next_id() {
     return ret;
 }
 
-void Threads::free_syncing_threds(int tid) {
+void Threads::free_syncing_threads(int tid) {
+    std::vector<int>
     (*syncing[tid]).clear();
 
 }

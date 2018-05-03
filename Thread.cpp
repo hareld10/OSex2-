@@ -9,7 +9,7 @@ int Thread::quantum_length=0;
 Thread::Thread(int _id, void (*f)(void)) {
     address_t sp, pc;
     id = _id;
-    total_quantum = 0;
+    total_quantum = 1;
     is_blocked = false;
     is_synced = false;
     sp = (address_t)stack + STACK_SIZE - sizeof(address_t);
