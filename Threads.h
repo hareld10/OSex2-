@@ -44,7 +44,6 @@ public:
     static int running_thread_id();
     static Thread* getReadyThread();
     static void free_syncing_threds(int tid);
-
     static Thread* get_running_thread();
 
 

@@ -30,10 +30,12 @@ public:
     static void set_quantum_length(int length);
     static address_t translate_address(address_t addr);
 
+    bool is_blocked;
     int id;
     int state;
     int total_quantum;
     static int quantum_length;
+    void add_one_quan();
     sigjmp_buf env;
     char stack[STACK_SIZE];
 };

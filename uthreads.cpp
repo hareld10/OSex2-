@@ -72,8 +72,6 @@ void switchThreads(int sig)
 }
 
 
-
-
 /*
  * Description: This function initializes the thread library.
  * You may assume that this function is called before any other thread library
@@ -186,6 +184,7 @@ int uthread_block(int tid){
     if (to_block == nullptr){
         return FAIL_CODE;
     }
+
     Threads::add_blocked(to_block);
     signalHandler(false);  // unBlock all signals
 
@@ -208,6 +207,10 @@ int uthread_resume(int tid){
         return 0;
     }
     Thread* to_resume = Threads::get_thread(tid);
+    if(to_resume == nullptr){
+        std::cout<< "cant get thread in resume";
+        return FAIL_CODE;
+    }
     Threads::add_ready(to_resume);
     signalHandler(false);  // unBlock all signals
 
@@ -232,12 +235,21 @@ int uthread_sync(int tid)
     signalHandler(true);  // Block all signals
     if(Threads::running_thread_id() == tid){
         std::cout<< "running thread calles sync";
-        exit(EXIT_FAILURE);
+        exit(FAIL_CODE);
     }
+    Thread *to_sync = Threads::get_thread(tid);
+    if (to_sync == nullptr){
+        std::cout<< "to_sync thread not found";
+        return FAIL_CODE;
+    }
+
+    Threads::sync(tid);
     Thread *cur_running = Threads::get_running_thread();
+
+    Threads::add_blocked(cur_running);
+    switchThreads(2);
+
     signalHandler(false);  // unBlock all signals
-
-
 }
 
 
@@ -257,8 +269,7 @@ int uthread_get_tid() {
  * should be increased by 1.
  * Return value: The total number of quantums.
 */
-int uthread_get_total_quantums()
-{
+int uthread_get_total_quantums(){
     return Threads::sum_all_usec();
 }
 
