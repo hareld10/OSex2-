@@ -17,7 +17,13 @@
 class Scheduler
 {
 
+
+
+
+
 public:
+
+    ~Scheduler();
     static int total_num_of_threads;
     static Threads my_threads;
     static std::priority_queue<int, std::vector<int>,  std::less<int>> pq;
@@ -40,12 +46,27 @@ public:
 
     static void add_ready(Thread *thread);
     static void add_blocked(Thread *thread);
+    static void setup_sync();
+    static void sync(int tid);
 
     static bool exist_by_id_ready(int id);
     static bool exist_by_id_blocked(int id);
     static int running_thread_id();
     static int get_all_usec();
     static int get_sum_by_id(int tid);
+
+
+
+
+
+
+
+
+
+
+
+    static std::vector<int> *syncing[];
+
 };
 
 #endif //OSEX2_SCHEDULER_H

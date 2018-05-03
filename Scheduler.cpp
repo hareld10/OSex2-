@@ -6,13 +6,17 @@
 
 int Scheduler::total_num_of_threads = 0;
 std::priority_queue<int, std::vector<int>,  std::less<int>> Scheduler::pq;
-Threads Scheduler::my_threads;
+Threads Scheduler::my_threads = Threads();
+std::vector<int>*  Scheduler::syncing[MAX_THREAD_NUM];
+
 
 void Scheduler::init(){
-    for (int i = 0; i < MAX_THREAD_NUM; i ++){
+    for (int i = 0; i < MAX_THREAD_NUM; i ++)
+    {
         pq.push(i);
     }
     my_threads = Threads();
+    Scheduler::setup_sync();  // Initiate syncing array
 }
 
 int Scheduler::get_next_id(){
@@ -85,4 +89,33 @@ int Scheduler::get_sum_by_id(int tid) {
 }
 
 
+
+
+/**
+ * add tid as a thread that's waiting for the running thread
+ * @param tid
+ */
+void Scheduler::sync(int tid) {
+    syncing[running_thread_id()]->push_back(tid);
+
+}
+
+void Scheduler::setup_sync() {
+    int i=1;
+    while(i < MAX_THREAD_NUM)
+    {
+        syncing[i] = new std::vector<int>();
+        ++i;
+    }
+
+}
+
+Scheduler::~Scheduler() {
+    int i=1;
+    while(i < MAX_THREAD_NUM)
+    {
+        delete syncing[i];
+        ++i;
+    }
+}
 

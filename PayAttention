@@ -2,3 +2,34 @@
 2. Block all signals - when&why?
 3. Do we need to store - "who is waiting for me to finish"
 
+
+
+Some ambiguities in the description of Ex2 were identified in the exercise forum
+(thanks a lot to everyone who posted them!)
+
+This announcement should summarize the major clarifications and updates.
+
+1. If thread A calls uthread_sync(A), treat it as an error.
+
+2. On the subject of syncing vs. blocking, treat the two independently, so for
+ example:
+
+- If uthread_block(A) was called then thread A will not be moved into the READY
+state unless uthread_resume(A) was called.
+
+- If thread A called uthread_sync(B) then thread A will not be moved into the
+ READY state unless thread B was terminated.
+
+- If thread A called uthread_sync(B) and afterwards uthread_block(A) was called
+then thread A will not be moved into the READY state unless uthread_resume(A) was
+ called and thread B was terminated, in any order.
+
+
+Think of these as independent conditions that must be met before moving the
+ thread back to the READY state.
+
+The syncing condition is added with uthread_sync and is removed when the target
+ thread is terminated.
+
+The blocking condition is added with uthread_block and is removed when
+uthread_resume is called.
