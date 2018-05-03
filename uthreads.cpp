@@ -1,4 +1,3 @@
-#include "Scheduler.h"//
 // Created by hareld10 on 4/24/18.
 //
 
@@ -7,7 +6,6 @@
 
 #include "Thread.h"
 #include "Threads.h"
-#include "Scheduler.h"
 #include "uthreads.h"
 /*
  * User-Level Threads Library (uthreads)
@@ -193,7 +191,12 @@ int uthread_resume(int tid){
 */
 int uthread_sync(int tid)
 {
-
+    // block all signals
+    if(Threads::running_thread_id() == tid){
+        std::cout<< "running thread calles sync";
+        exit(EXIT_FAILURE);
+    }
+    Thread *cur_running = Threads::get_running_thread();
 
 }
 
