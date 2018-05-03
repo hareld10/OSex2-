@@ -1,4 +1,3 @@
-#include "Scheduler.h"//
 // Created by hareld10 on 4/24/18.
 //
 
@@ -7,7 +6,6 @@
 
 #include "Thread.h"
 #include "Threads.h"
-#include "Scheduler.h"
 /*
  * User-Level Threads Library (uthreads)
  * Author: OS, os@cs.huji.ac.il
@@ -39,7 +37,7 @@ int uthread_init(int quantum_usecs)
         return FAIL_CODE;
     }
     Thread::set_quantum_length(quantum_usecs);
-    Scheduler::init();
+    Threads::init();
 }
 
 /*
@@ -54,17 +52,17 @@ int uthread_init(int quantum_usecs)
 */
 int uthread_spawn(void (*f)(void)){
     // check if not exceeded MAX NUM
-    if(Scheduler::total_num_of_threads == MAX_THREAD_NUM){
+    if(Threads::total_num_of_threads == MAX_THREAD_NUM){
         return FAIL_CODE;
     }
-    Scheduler::total_num_of_threads++;
+    Threads::total_num_of_threads++;
 
     //get next id for new Thread
-    int id = Scheduler::get_next_id();
+    int id = Threads::get_next_id();
 
     auto *new_thread = new Thread(id, f);
     // Add to ready list
-    Scheduler::add_ready(new_thread);
+    Threads::add_ready(new_thread);
 
     return id;
 }
@@ -87,14 +85,13 @@ int uthread_terminate(int tid)
         exit(EXIT_SUCCESS);
     }
 
+    Threads::free_syncing_threds(tid);
 
-    /*else if (Scheduler::remove_ready_thread(tid) == EXIT_SUCCESS)
-    {
-        return EXIT_SUCCESS;
+    if (Threads::get_thread(tid) == nullptr){
+        return FAIL_CODE;
     }
+    return SUCCESS_CODE;
 
-    return Scheduler::remove_blocked_thread(tid);
-*/
 }
 
 
@@ -111,15 +108,15 @@ int uthread_block(int tid){
     if(tid == 0){
         return FAIL_CODE;
     }
-    if(Scheduler::exist_by_id_blocked(tid)){
+    if(Threads::exist_by_id_blocked(tid)){
         return SUCCESS_CODE;
     }
 
-    Thread* to_block = Scheduler::get_thread(tid);
+    Thread* to_block = Threads::get_thread(tid);
     if (to_block == nullptr){
         return FAIL_CODE;
     }
-    Scheduler::add_blocked(to_block);
+    Threads::add_blocked(to_block);
     return SUCCESS_CODE;
 
 }
@@ -133,11 +130,11 @@ int uthread_block(int tid){
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_resume(int tid){
-    if(Scheduler::running_thread_id()||(Scheduler::exist_by_id_ready(tid))){
+    if(Threads::running_thread_id()||(Threads::exist_by_id_ready(tid))){
         return 0;
     }
-    Thread* to_resume = Scheduler::get_thread(tid);
-    Scheduler::add_ready(to_resume);
+    Thread* to_resume = Threads::get_thread(tid);
+    Threads::add_ready(to_resume);
     return SUCCESS_CODE;
 }
 
@@ -166,7 +163,7 @@ int uthread_sync(int tid)
  * Return value: The ID of the calling thread.
 */
 int uthread_get_tid() {
-    return Scheduler::running_thread_id();
+    return Threads::running_thread_id();
 }
 
 /*
@@ -178,7 +175,7 @@ int uthread_get_tid() {
  * Return value: The total number of quantums.
 */
 int uthread_get_total_quantums(){
-    return Scheduler::get_all_usec();
+    return Threads::sum_all_usec();
 }
 
 
@@ -192,7 +189,7 @@ int uthread_get_total_quantums(){
  * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
 */
 int uthread_get_quantums(int tid) {
-    return Scheduler::get_sum_by_id(tid);
+    return Threads::sum_by_id(tid);
 }
 
 #endif
