@@ -153,7 +153,7 @@ int uthread_terminate(int tid)
         return FAIL_CODE;
     }
 
-    std::vector<int>* to_free = new std::vector(Threads::syncing[tid]);
+    auto * to_free = new std::vector<int>(*Threads::syncing[tid]);
 
     Threads::free_syncing_threads(tid);
     for(auto id: *to_free){
