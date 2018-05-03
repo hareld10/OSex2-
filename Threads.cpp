@@ -237,3 +237,7 @@ void Threads::setRunningThread(Thread *thread)
 
 }
 
+Thread *Threads::get_running_thread() {
+    return _running_thread;
+}
+
