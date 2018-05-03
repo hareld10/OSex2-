@@ -95,7 +95,7 @@ void resetTimer(int quantum_usecs)
     timer.it_value.tv_usec = quantum_usecs % 1000000; /* first time interval, microseconds part */
     timer.it_interval.tv_sec = quantum_usecs / 1000000;  /* following time intervals, seconds part */
     timer.it_interval.tv_usec = quantum_usecs % 1000000; /* following time intervals, microseconds part */
-    if (setitimer(ITIMER_VIRTUAL, &timer, NULL) == FAIL_CODE)
+    if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
     { //if the set timer fails, print out a system call error and exit with the value 1
         std::cout<<"reset fail";
         exit(1);
