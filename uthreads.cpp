@@ -4,7 +4,6 @@
 #ifndef _UTHREADS_CPP
 #define _UTHREADS_CPP
 
-#include "Thread.h"
 #include "Threads.h"
 #include "uthreads.h"
 /*

@@ -207,7 +207,6 @@ int Threads::get_next_id() {
 }
 
 void Threads::free_syncing_threads(int tid) {
-    std::vector<int>
     (*syncing[tid]).clear();
 
 }
