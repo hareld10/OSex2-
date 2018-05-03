@@ -26,7 +26,8 @@ int _quantum_usecs;
  */
 void signalHandler(bool block)
 {
-//    std::cout<<"handeling\n";
+    std::cout<<"in signalHandler\n";
+
     std::flush(std::cout);
     if (block)
     {
@@ -51,8 +52,12 @@ void signalHandler(bool block)
  * Switch between the running thread and the next ready thread in line
  */
 void switchThreads(int sig)
+
 {
+    std::cout<<"in switchThreads\n";
+
     signalHandler(true);
+    std::flush(std::cout);
     auto currentThread = Threads::get_thread(Threads::running_thread_id());
     auto nextThread = Threads::getReadyThread();
     if (nextThread == nullptr) // Ready queue is empty
@@ -65,7 +70,7 @@ void switchThreads(int sig)
         int ret_val = sigsetjmp(*(currentThread->env), 1);
         if (ret_val == 1)  //sigsetjmp failed
         {
-            std::cout<<"switch error line 69";
+            std::cout<<"got here from jump, returning...\n";
             return;
         }
         printf("SWITCH: ret_val=%d\n", ret_val);
@@ -78,9 +83,10 @@ void switchThreads(int sig)
     nextThread->add_one_quan();
     resetTimer(_quantum_usecs);
     signalHandler(false);
+    std::cout<<"id: \n";
+    std::cout<<nextThread->id<<std::endl;
 
     siglongjmp(*(nextThread->env) ,1);
-    //todo What else?
 }
 
 
@@ -90,18 +96,20 @@ void switchThreads(int sig)
  */
 void resetTimer(int quantum_usecs)
 {
+    std::cout<<"in resetTimer\n";
+    if (sigaction(SIGVTALRM, &sa, nullptr) < 0) {
+        printf("sigaction error.");
+    }
 
-    signal(SIGVTALRM, switchThreads);
+//    timer.it_value.tv_sec = 1 ;  /* first time interval, seconds part */
+//    timer.it_value.tv_usec = 0 ;/* first time interval, microseconds part */
+//    timer.it_interval.tv_sec = 3 ;  /* following time intervals, seconds part */
+//    timer.it_interval.tv_usec = 0 ; /* following time intervals, microseconds part */
 
-    timer.it_value.tv_sec = 1 ;  /* first time interval, seconds part */
-    timer.it_value.tv_usec = 0 ;/* first time interval, microseconds part */
-    timer.it_interval.tv_sec = 3 ;  /* following time intervals, seconds part */
-    timer.it_interval.tv_usec = 0 ; /* following time intervals, microseconds part */
-
-//    timer.it_value.tv_sec = quantum_usecs / 1000000;  /* first time interval, seconds part */
-//    timer.it_value.tv_usec = quantum_usecs % 1000000; /* first time interval, microseconds part */
-//    timer.it_interval.tv_sec = quantum_usecs / 1000000;  /* following time intervals, seconds part */
-//    timer.it_interval.tv_usec = quantum_usecs % 1000000; /* following time intervals, microseconds part */
+    timer.it_value.tv_sec = quantum_usecs ;
+    timer.it_value.tv_usec = quantum_usecs ;
+    timer.it_interval.tv_sec = quantum_usecs ;
+    timer.it_interval.tv_usec = quantum_usecs ;
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
     { //if the set timer fails, print out a system call error and exit with the value 1
         std::cout<<"reset fail";
@@ -130,9 +138,7 @@ int uthread_init(int quantum_usecs)
 
     // Install timer_handler as the signal handler for SIGVTALRM:
     sa.sa_handler = &switchThreads;
-    if (sigaction(SIGVTALRM, &sa, nullptr) < 0) {
-        printf("sigaction error.");
-    }
+
 
     Threads::init();
     resetTimer(quantum_usecs);
@@ -149,6 +155,8 @@ int uthread_init(int quantum_usecs)
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void)){
+    std::cout<<"in uthread_spawn\n";
+
     signalHandler(true);  // Block all signals
 
     // check if not exceeded MAX NUM
