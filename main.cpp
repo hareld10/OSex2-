@@ -6,12 +6,15 @@
 
 
 void func1(void){
-    std::cout << "Hello World!" << std::endl;
+    std::cout << "Junk!" << std::endl;
     std::flush(std::cout);
     for( ; ;) { }
 }
 void func2(void){
-    std::cout << "Junk!" << std::endl;
+    std::cout << "Hello World!" << std::endl;
+    std::flush(std::cout);
+
+
     for( ; ;) { }
 }
 

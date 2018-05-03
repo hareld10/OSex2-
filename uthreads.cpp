@@ -27,6 +27,8 @@ int _quantum_usecs;
  */
 void signalHandler(bool block)
 {
+//    std::cout<<"handeling\n";
+    std::flush(std::cout);
     if (block)
     {
         if (sigprocmask (SIG_BLOCK, &signals, nullptr) == FAIL_CODE)
@@ -56,29 +58,29 @@ void switchThreads(int sig)
     auto nextThread = Threads::getReadyThread();
     if (nextThread == nullptr) // Ready queue is empty
     {
-        return;
+        std::cout<<"line 61\n";
+
     }
     if(currentThread != nullptr)
     {
         int ret_val = sigsetjmp(*(currentThread->env), 1);
         if (ret_val == 1)  //sigsetjmp failed
         {
-            std::cout<<"switch error";
+            std::cout<<"switch error line 69";
             return;
         }
         printf("SWITCH: ret_val=%d\n", ret_val);
 
     }
     Threads::setRunningThread(nextThread);
-    Threads::add_ready(currentThread);
+    if(currentThread != nullptr) {
+        Threads::add_ready(currentThread);
+    }
     nextThread->add_one_quan();
     resetTimer(_quantum_usecs);
     signalHandler(false);
 
     siglongjmp(*(nextThread->env) ,1);
-
-
-
     //todo What else?
 }
 
@@ -92,11 +94,16 @@ void resetTimer(int quantum_usecs)
 
     signal(SIGVTALRM, switchThreads);
 
-    timer.it_value.tv_sec = quantum_usecs / 1000000;  /* first time interval, seconds part */
-    timer.it_value.tv_usec = quantum_usecs % 1000000; /* first time interval, microseconds part */
-    timer.it_interval.tv_sec = quantum_usecs / 1000000;  /* following time intervals, seconds part */
-    timer.it_interval.tv_usec = quantum_usecs % 1000000; /* following time intervals, microseconds part */
-    if (setitimer(ITIMER_VIRTUAL, &timer, NULL) == FAIL_CODE)
+    timer.it_value.tv_sec = 1 ;  /* first time interval, seconds part */
+    timer.it_value.tv_usec = 0 ;/* first time interval, microseconds part */
+    timer.it_interval.tv_sec = 3 ;  /* following time intervals, seconds part */
+    timer.it_interval.tv_usec = 0 ; /* following time intervals, microseconds part */
+
+//    timer.it_value.tv_sec = quantum_usecs / 1000000;  /* first time interval, seconds part */
+//    timer.it_value.tv_usec = quantum_usecs % 1000000; /* first time interval, microseconds part */
+//    timer.it_interval.tv_sec = quantum_usecs / 1000000;  /* following time intervals, seconds part */
+//    timer.it_interval.tv_usec = quantum_usecs % 1000000; /* following time intervals, microseconds part */
+    if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
     { //if the set timer fails, print out a system call error and exit with the value 1
         std::cout<<"reset fail";
         exit(1);
@@ -115,6 +122,8 @@ int uthread_init(int quantum_usecs)
 {
     if(quantum_usecs <= 0)
     {
+        std::cout<<"line 121\n";
+
         return FAIL_CODE;
     }
     Thread::set_quantum_length(quantum_usecs);
@@ -145,6 +154,8 @@ int uthread_spawn(void (*f)(void)){
 
     // check if not exceeded MAX NUM
     if(Threads::total_num_of_threads == MAX_THREAD_NUM){
+        std::cout<<"line 153\n";
+
         return FAIL_CODE;
     }
     Threads::total_num_of_threads++;
@@ -242,6 +253,7 @@ int uthread_resume(int tid){
     signalHandler(true);  // Block all signals
 
     if(((Threads::running_thread_id()== tid)||(Threads::exist_by_id_ready(tid)))||Threads::is_synced(tid)){
+        std::cout<<"line 247\n";
         return 0;
     }
     Thread* to_resume = Threads::get_thread(tid);
@@ -274,7 +286,7 @@ int uthread_resume(int tid){
 int uthread_sync(int tid)
 {
     signalHandler(true);  // Block all signals
-    if(Threads::running_thread_id() == tid){
+    if(Threads::running_thread_id() == tid || tid == 0){
         std::cout<< "running thread calles sync";
         exit(FAIL_CODE);
     }

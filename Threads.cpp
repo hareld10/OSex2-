@@ -15,6 +15,7 @@ Thread *Threads::_running_thread;
 void Threads::init() {
     _ready_threads = new std::deque<Thread*>;
     _blocked_threads = new std::deque<Thread*>;
+    pq = *new std::priority_queue<int, std::vector<int>,  std::greater<int>>();
     for (int i = 1; i < MAX_THREAD_NUM; i ++)
     {
         pq.push(i);
@@ -132,6 +133,8 @@ Thread *Threads::get_thread(int tid) {
         return _running_thread;
     }
     // Thread not found:
+    std::cout<<"line135 Threads.cpp";
+    std::flush(std::cout);
     return nullptr;
 }
 
@@ -147,7 +150,7 @@ bool Threads::exist_by_id_ready(int id) {
 int Threads::running_thread_id(){
     if (_running_thread == nullptr){
 
-        std::cout << "Returned nullptr from running_thread_id";
+        std::cout << "Returned nullptr from running_thread_id\n";
         return -1;
     }
     return _running_thread->id;
