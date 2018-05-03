@@ -135,7 +135,7 @@ bool Threads::exist_by_id_ready(int id) {
 
 int Threads::running_thread_id(){
     if (_running_thread == nullptr){
-        std::cout << "Returned nullptr from running_thred_id";
+        std::cout << "Returned nullptr from running_thread_id";
         return -1;
     }
     return _running_thread->id;
@@ -204,5 +204,9 @@ int Threads::get_next_id() {
 void Threads::free_syncing_threds(int tid) {
     (*syncing[tid]).clear();
 
+}
+
+Thread *Threads::getReadyThread() {
+    return nullptr;
 }
 

@@ -37,7 +37,7 @@ void switchThreads(int sig)
         return;
     }
 
-    int ret_val = sigsetjmp(currentThread->env,1);
+    int ret_val = sigsetjmp(currentThread->env, 1);
     if (ret_val == 1)  //sigsetjmp failed
     {
         return;
@@ -75,10 +75,7 @@ int uthread_init(int quantum_usecs)
     }
     timer.it_value.tv_usec = quantum_usecs;		// first time interval, microseconds part
     timer.it_interval.tv_usec = quantum_usecs;	// following time intervals, microseconds part
-
-
-
-    Scheduler::init();
+    Threads::init();
 }
 
 /*
