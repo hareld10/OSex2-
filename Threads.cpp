@@ -1,22 +1,15 @@
 //
 // Created by mstav on 4/29/18.
 //
-#include <vector>
-#include "uthreads.h"
 #include "Threads.h"
 
 
 int Threads::total_num_of_threads = 0;
 std::priority_queue<int, std::vector<int>,  std::less<int>> Threads::pq;
 std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
-std::vector<Thread*> *Threads::_ready_threads;
-std::vector<Thread*> *Threads::_blocked_threads;
+std::deque<Thread*> *Threads::_ready_threads;
+std::deque<Thread*> *Threads::_blocked_threads;
 Thread *Threads::_running_thread;
-
-
-
-
-
 
 void Threads::init() {
     _ready_threads = new std::deque<Thread*>;
@@ -28,10 +21,6 @@ void Threads::init() {
     }
 
 }
-
-
-
-
 
 /**
  *  Destructor
@@ -201,9 +190,8 @@ int Threads::sum_by_id(int tid) {
     return FAIL_CODE;
 }
 
-
 void Threads::sync(int tid) {
-    syncing[running_thread_id()]->push_back(tid);
+    syncing[tid]->push_back(running_thread_id());
 }
 
 int Threads::get_next_id() {

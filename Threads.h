@@ -11,7 +11,7 @@
 #include <queue>
 
 #define FAIL_CODE (-1)
-
+#define MAX_THREAD_NUM 100
 
 class Threads
 {
