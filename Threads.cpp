@@ -2,17 +2,16 @@
 // Created by mstav on 4/29/18.
 //
 #include <vector>
-
+#include "uthreads.h"
 #include "Threads.h"
 
 
-/**
- * Constructor
- */
-Threads::Threads() {
-    _ready_threads = new std::vector<Thread*>;
-    _blocked_threads = new std::vector<Thread*>;
-}
+int Threads::total_num_of_threads = 0;
+std::priority_queue<int, std::vector<int>,  std::less<int>> Threads::pq;
+std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
+std::vector<Thread*> *Threads::_ready_threads;
+std::vector<Thread*> *Threads::_blocked_threads;
+Thread *Threads::_running_thread;
 
 /**
  *  Destructor
@@ -31,9 +30,14 @@ Threads::~Threads() {
     }
     delete _blocked_threads;
 
+    int i=1;
+    while(i < MAX_THREAD_NUM)
+    {
+        delete syncing[i];
+        ++i;
+    }
     //todo if we allocated this instance with "new"- add "delete this"
 }
-
 
 void Threads::add_ready(Thread *thread) {
     _ready_threads->push_back(thread);
@@ -63,8 +67,11 @@ int Threads::remove_blocked_thread(int id)
     return FAIL_CODE;
 }
 
-
 int Threads::remove_ready_thread(int id) {
+    if (id <= 0)
+    {
+        return FAIL_CODE;
+    }
     auto iter = _ready_threads->begin();
     for( ; iter != _ready_threads->end(); ++iter)
     {
@@ -116,7 +123,6 @@ Thread *Threads::get_thread(int tid) {
     // Thread not found:
     return nullptr;
 }
-
 
 bool Threads::exist_by_id_ready(int id) {
     for(Thread* i: *_ready_threads){
@@ -172,5 +178,31 @@ int Threads::sum_by_id(int tid) {
     }
     std::cout << "Error in Sum by id";
     return FAIL_CODE;
+}
+
+void Threads::init() {
+    _ready_threads = new std::vector<Thread*>;
+    _blocked_threads = new std::vector<Thread*>;
+    for (int i = 0; i < MAX_THREAD_NUM; i ++)
+    {
+        pq.push(i);
+        syncing[i] = new std::vector<int>();
+    }
+
+}
+
+void Threads::sync(int tid) {
+    syncing[running_thread_id()]->push_back(tid);
+}
+
+int Threads::get_next_id() {
+    int ret = Threads::pq.top();
+    pq.pop();
+    return ret;
+}
+
+void Threads::free_syncing_threds(int tid) {
+    (*syncing[tid]).clear();
+
 }
 
