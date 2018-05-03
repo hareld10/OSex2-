@@ -12,11 +12,6 @@ std::deque<Thread*> *Threads::_ready_threads;
 std::deque<Thread*> *Threads::_blocked_threads;
 Thread *Threads::_running_thread;
 
-
-
-
-
-
 void Threads::init() {
     _ready_threads = new std::deque<Thread*>;
     _blocked_threads = new std::deque<Thread*>;
@@ -27,10 +22,6 @@ void Threads::init() {
     }
 
 }
-
-
-
-
 
 /**
  *  Destructor
@@ -199,7 +190,6 @@ int Threads::sum_by_id(int tid) {
     std::cout << "Error in Sum by id";
     return FAIL_CODE;
 }
-
 
 void Threads::sync(int tid) {
     syncing[tid]->push_back(running_thread_id());

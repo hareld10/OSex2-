@@ -72,8 +72,6 @@ void switchThreads(int sig)
 }
 
 
-
-
 /*
  * Description: This function initializes the thread library.
  * You may assume that this function is called before any other thread library
@@ -186,6 +184,8 @@ int uthread_block(int tid){
     if (to_block == nullptr){
         return FAIL_CODE;
     }
+
+    //todo insert tid to pq
     Threads::add_blocked(to_block);
     signalHandler(false);  // unBlock all signals
 
@@ -234,9 +234,18 @@ int uthread_sync(int tid)
         std::cout<< "running thread calles sync";
         exit(EXIT_FAILURE);
     }
+    Thread *to_sync = Threads::get_thread(tid);
+    if (to_sync == nullptr){
+        std::cout<< "to_sync thread not found";
+        return EXIT_FAILURE;
+    }
+
+    Threads::sync(tid);
     Thread *cur_running = Threads::get_running_thread();
     signalHandler(false);  // unBlock all signals
 
+    Threads::add_blocked(cur_running);
+    switchThreads(2);
 
 }
 
