@@ -26,8 +26,6 @@ int _quantum_usecs;
  */
 void signalHandler(bool block)
 {
-//    std::cout<<"handeling\n";
-    std::flush(std::cout);
     if (block)
     {
         if (sigprocmask (SIG_BLOCK, &signals, nullptr) == FAIL_CODE)
@@ -93,16 +91,11 @@ void resetTimer(int quantum_usecs)
 
     signal(SIGVTALRM, switchThreads);
 
-    timer.it_value.tv_sec = 1 ;  /* first time interval, seconds part */
-    timer.it_value.tv_usec = 0 ;/* first time interval, microseconds part */
-    timer.it_interval.tv_sec = 3 ;  /* following time intervals, seconds part */
-    timer.it_interval.tv_usec = 0 ; /* following time intervals, microseconds part */
-
-//    timer.it_value.tv_sec = quantum_usecs / 1000000;  /* first time interval, seconds part */
-//    timer.it_value.tv_usec = quantum_usecs % 1000000; /* first time interval, microseconds part */
-//    timer.it_interval.tv_sec = quantum_usecs / 1000000;  /* following time intervals, seconds part */
-//    timer.it_interval.tv_usec = quantum_usecs % 1000000; /* following time intervals, microseconds part */
-    if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
+    timer.it_value.tv_sec = quantum_usecs / 1000000;  /* first time interval, seconds part */
+    timer.it_value.tv_usec = quantum_usecs % 1000000; /* first time interval, microseconds part */
+    timer.it_interval.tv_sec = quantum_usecs / 1000000;  /* following time intervals, seconds part */
+    timer.it_interval.tv_usec = quantum_usecs % 1000000; /* following time intervals, microseconds part */
+    if (setitimer(ITIMER_VIRTUAL, &timer, NULL) == FAIL_CODE)
     { //if the set timer fails, print out a system call error and exit with the value 1
         std::cout<<"reset fail";
         exit(1);
