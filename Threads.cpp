@@ -210,3 +210,7 @@ Thread *Threads::getReadyThread() {
     return nullptr;
 }
 
+Thread *Threads::get_running_thread() {
+    return _running_thread;
+}
+
