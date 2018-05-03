@@ -122,7 +122,7 @@ void setup(void)
 
 int main(void)
 {
-  setup();		
+  setup();
   siglongjmp(env[0], 1);
   return 0;
 

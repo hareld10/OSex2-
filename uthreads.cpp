@@ -2,12 +2,13 @@
 // Created by hareld10 on 4/24/18.
 //
 
-#ifndef _UTHREADS_H
-#define _UTHREADS_H
+#ifndef _UTHREADS_CPP
+#define _UTHREADS_CPP
 
 #include "Thread.h"
 #include "Threads.h"
 #include "Scheduler.h"
+#include "uthreads.h"
 /*
  * User-Level Threads Library (uthreads)
  * Author: OS, os@cs.huji.ac.il
@@ -24,6 +25,32 @@
 
 
 
+/**
+ * Switch between the running thread and the next ready thread in line
+ */
+void switchThreads(int sig)
+{
+    auto currentThread = Threads::get_thread(Threads::running_thread_id());
+    auto nextThread = Threads::getReadyThread();
+    if (nextThread == nullptr) // Ready queue is empty
+    {
+        return;
+    }
+
+    int ret_val = sigsetjmp(currentThread->env,1);
+    if (ret_val == 1)  //sigsetjmp failed
+    {
+        return;
+    }
+    printf("SWITCH: ret_val=%d\n", ret_val);
+    siglongjmp(nextThread->env ,1);
+
+    //todo What else?
+}
+
+
+
+
 /*
  * Description: This function initializes the thread library.
  * You may assume that this function is called before any other thread library
@@ -34,11 +61,24 @@
 */
 int uthread_init(int quantum_usecs)
 {
+
     if(quantum_usecs <= 0)
     {
         return FAIL_CODE;
     }
     Thread::set_quantum_length(quantum_usecs);
+
+
+    // Install timer_handler as the signal handler for SIGVTALRM:
+    sa.sa_handler = &switchThreads;
+    if (sigaction(SIGALRM, &sa, nullptr) < 0) {
+        printf("sigaction error.");
+    }
+    timer.it_value.tv_usec = quantum_usecs;		// first time interval, microseconds part
+    timer.it_interval.tv_usec = quantum_usecs;	// following time intervals, microseconds part
+
+
+
     Scheduler::init();
 }
 
