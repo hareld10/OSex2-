@@ -1,0 +1,29 @@
+Some ambiguities in the description of Ex2 were identified in the exercise forum (thanks a lot to everyone who posted them!)
+
+This announcement should summarize the major clarifications and updates.
+
+1. If thread A calls uthread_sync(A), treat it as an error.
+
+2. On the subject of syncing vs. blocking, treat the two independently, so for example:
+
+- If uthread_block(A) was called then thread A will not be moved into the READY state unless uthread_resume(A) was called.
+
+- If thread A called uthread_sync(B) then thread A will not be moved into the READY state unless thread B was terminated.
+
+- If thread A called uthread_sync(B) and afterwards uthread_block(A) was called then thread A will not be moved into
+the READY state unless uthread_resume(A) was called and thread B was terminated, in any order.
+
+
+
+Think of these as independent conditions that must be met before moving the thread back to the READY state.
+
+The syncing condition is added with uthread_sync and is removed when the target thread is terminated.
+
+The blocking condition is added with uthread_block and is removed when uthread_resume is called.
+
+I hope this clears up all known issues, if you find other ambiguities or have further questions please bring
+them up in the forums as soon as possible. I'll try to announce future clarifications here if there are any,
+but keep in mind that forum answers are binding as well, so make sure you invest the time to read them.
+
+I've updated the exercise description and the uthreads.h documentation to clarify this issue as well.
+

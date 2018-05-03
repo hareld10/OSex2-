@@ -83,12 +83,18 @@ int uthread_spawn(void (*f)(void)){
 */
 int uthread_terminate(int tid)
 {
-    if (Scheduler::remove_ready_thread(tid) == EXIT_SUCCESS)
+    if(tid == 0){
+        exit(EXIT_SUCCESS);
+    }
+
+
+    /*else if (Scheduler::remove_ready_thread(tid) == EXIT_SUCCESS)
     {
         return EXIT_SUCCESS;
     }
-    return Scheduler::remove_blocked_thread(tid);
 
+    return Scheduler::remove_blocked_thread(tid);
+*/
 }
 
 
