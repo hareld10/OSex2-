@@ -11,6 +11,7 @@ Thread::Thread(int _id, void (*f)(void)) {
     id = _id;
     total_quantum = 0;
     is_blocked = false;
+    is_synced = false;
     sp = (address_t)stack + STACK_SIZE - sizeof(address_t);
     pc = (address_t)f;
     // save state and save mask

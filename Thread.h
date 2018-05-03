@@ -31,6 +31,7 @@ public:
     static address_t translate_address(address_t addr);
 
     bool is_blocked;
+    bool is_synced;
     int id;
     int state;
     int total_quantum;
