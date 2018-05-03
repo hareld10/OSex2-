@@ -6,7 +6,7 @@
 
 
 int Threads::total_num_of_threads = 0;
-std::priority_queue<int, std::vector<int>,  std::less<int>> Threads::pq;
+std::priority_queue<int, std::vector<int>,  std::greater<int>> Threads::pq;
 std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
 std::deque<Thread*> *Threads::_ready_threads;
 std::deque<Thread*> *Threads::_blocked_threads;
@@ -162,7 +162,7 @@ bool Threads::exist_by_id_blocked(int id) {
 }
 
 int Threads::sum_all_usec() {
-    int sum = 0;
+    int sum = 1;
     for(Thread* i: *_ready_threads){
         sum+=i->total_quantum;
     }
@@ -203,7 +203,6 @@ int Threads::get_next_id() {
 }
 
 void Threads::free_syncing_threads(int tid) {
-    std::vector<int>
     (*syncing[tid]).clear();
 
 }

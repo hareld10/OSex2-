@@ -15,9 +15,9 @@
 
 /* External interface */
 
-struct sigaction sa;
-struct itimerval timer;
-sigset_t signals;
+static struct sigaction sa;
+static struct itimerval timer;
+static sigset_t signals;
 
 
 
