@@ -204,7 +204,7 @@ int uthread_block(int tid){
 int uthread_resume(int tid){
     signalHandler(true);  // Block all signals
 
-    if(Threads::running_thread_id()||(Threads::exist_by_id_ready(tid))){
+    if(Threads::running_thread_id() == tid ||(Threads::exist_by_id_ready(tid))){
         return 0;
     }
     Thread* to_resume = Threads::get_thread(tid);
@@ -257,7 +257,8 @@ int uthread_get_tid() {
  * should be increased by 1.
  * Return value: The total number of quantums.
 */
-int uthread_get_total_quantums(){
+int uthread_get_total_quantums()
+{
     return Threads::sum_all_usec();
 }
 
@@ -271,7 +272,8 @@ int uthread_get_total_quantums(){
  * thread with ID tid exists it is considered as an error.
  * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
 */
-int uthread_get_quantums(int tid) {
+int uthread_get_quantums(int tid)
+{
     return Threads::sum_by_id(tid);
 }
 
