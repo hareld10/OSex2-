@@ -37,15 +37,16 @@ public:
     static int sum_by_id(int tid);
     static void sync(int tid);
     static Thread* get_thread(int tid);
+    static Thread* get_thread_ptr(int tid);
     static bool exist_by_id_ready(int id);
     static bool exist_by_id_blocked(int id);
     static int get_next_id();
     static void setRunningThread(Thread* thread);
     static int running_thread_id();
     static Thread* getReadyThread();
-    static void free_syncing_threds(int tid);
+    static void free_syncing_threads(int tid);
     static Thread* get_running_thread();
-
+    static bool is_synced(int tid);
 
 };
 

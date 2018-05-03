@@ -56,7 +56,7 @@ void Threads::add_ready(Thread *thread) {
 }
 
 void Threads::add_blocked(Thread *thread) {
-    sigsetjmp(thread->env, 1);
+    thread->is_blocked = true;
     _blocked_threads->push_back(thread);
 
 }
@@ -193,6 +193,7 @@ int Threads::sum_by_id(int tid) {
 
 void Threads::sync(int tid) {
     syncing[tid]->push_back(running_thread_id());
+
 }
 
 int Threads::get_next_id() {
@@ -201,7 +202,8 @@ int Threads::get_next_id() {
     return ret;
 }
 
-void Threads::free_syncing_threds(int tid) {
+void Threads::free_syncing_threads(int tid) {
+    std::vector<int>
     (*syncing[tid]).clear();
 
 }
@@ -234,5 +236,44 @@ Thread *Threads::get_running_thread() {
 void Threads::addTid(int tid)
 {
     pq.push(tid);
+}
+
+Thread *Threads::get_thread_ptr(int tid) {
+    auto iter = _blocked_threads->begin();
+    for( ; iter != _blocked_threads->end(); ++iter)
+    {
+        // Found thread, add it to the ready list:
+        if ((*iter)->id == tid)
+        {
+            return *iter;
+        }
+    }
+    iter = _ready_threads->begin();
+    for( ; iter != _ready_threads->end(); ++iter)
+    {
+        // Found thread, add it to the ready list:
+        if ((*iter)->id == tid)
+        {
+            return *iter;
+        }
+    }
+
+    if (tid == running_thread_id())
+    {
+        return _running_thread;
+    }
+    // Thread not found:
+    return nullptr;
+}
+
+bool Threads::is_synced(int tid) {
+    for(auto vec: Threads::syncing){
+        for(auto id: *vec){
+            if(id == tid){
+                return true;
+            }
+        }
+    }
+    return false;
 }
 

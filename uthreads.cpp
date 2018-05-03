@@ -149,11 +149,18 @@ int uthread_terminate(int tid)
         exit(EXIT_SUCCESS);
     }
 
-    Threads::free_syncing_threds(tid);
     if (Threads::get_thread(tid) == nullptr){
         return FAIL_CODE;
     }
 
+    std::vector<int>* to_free = new std::vector(Threads::syncing[tid]);
+
+    Threads::free_syncing_threads(tid);
+    for(auto id: *to_free){
+        uthread_resume(id);
+    }
+
+    delete to_free;
     Threads::addTid(tid);  // Add the now free id to the id pool
     signalHandler(false);  // unBlock all signals
 
@@ -203,7 +210,7 @@ int uthread_block(int tid){
 int uthread_resume(int tid){
     signalHandler(true);  // Block all signals
 
-    if((Threads::running_thread_id()== tid)||(Threads::exist_by_id_ready(tid))){
+    if(((Threads::running_thread_id()== tid)||(Threads::exist_by_id_ready(tid)))||Threads::is_synced(tid)){
         return 0;
     }
     Thread* to_resume = Threads::get_thread(tid);
@@ -211,7 +218,10 @@ int uthread_resume(int tid){
         std::cout<< "cant get thread in resume";
         return FAIL_CODE;
     }
+
+    to_resume->is_blocked = false;
     Threads::add_ready(to_resume);
+
     signalHandler(false);  // unBlock all signals
 
     return SUCCESS_CODE;
@@ -245,9 +255,9 @@ int uthread_sync(int tid)
 
     Threads::sync(tid);
     Thread *cur_running = Threads::get_running_thread();
-    signalHandler(false);  // unBlock all signals
-
+//    cur_running->is_synced = true;
     Threads::add_blocked(cur_running);
+    signalHandler(false);  // unBlock all signals
     switchThreads(2);
 
 }
