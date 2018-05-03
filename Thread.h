@@ -34,6 +34,7 @@ public:
     int state;
     int total_quantum;
     static int quantum_length;
+    void add_one_quan();
     sigjmp_buf env;
     char stack[STACK_SIZE];
 };

@@ -9,6 +9,7 @@ int Thread::quantum_length=0;
 Thread::Thread(int _id, void (*f)(void)) {
     address_t sp, pc;
     id = _id;
+    total_quantum = 0;
     sp = (address_t)stack + STACK_SIZE - sizeof(address_t);
     pc = (address_t)f;
     // save state and save mask
@@ -33,5 +34,9 @@ address_t Thread::translate_address(address_t addr) {
     : "=g" (ret)
     : "0" (addr));
     return ret;
+}
+
+void Thread::add_one_quan() {
+    total_quantum++;
 }
 

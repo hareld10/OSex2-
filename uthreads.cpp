@@ -185,7 +185,6 @@ int uthread_block(int tid){
         return FAIL_CODE;
     }
 
-    //todo insert tid to pq
     Threads::add_blocked(to_block);
     signalHandler(false);  // unBlock all signals
 
@@ -204,10 +203,14 @@ int uthread_block(int tid){
 int uthread_resume(int tid){
     signalHandler(true);  // Block all signals
 
-    if(Threads::running_thread_id()||(Threads::exist_by_id_ready(tid))){
+    if((Threads::running_thread_id()== tid)||(Threads::exist_by_id_ready(tid))){
         return 0;
     }
     Thread* to_resume = Threads::get_thread(tid);
+    if(to_resume == nullptr){
+        std::cout<< "cant get thread in resume";
+        return FAIL_CODE;
+    }
     Threads::add_ready(to_resume);
     signalHandler(false);  // unBlock all signals
 
@@ -232,12 +235,12 @@ int uthread_sync(int tid)
     signalHandler(true);  // Block all signals
     if(Threads::running_thread_id() == tid){
         std::cout<< "running thread calles sync";
-        exit(EXIT_FAILURE);
+        exit(FAIL_CODE);
     }
     Thread *to_sync = Threads::get_thread(tid);
     if (to_sync == nullptr){
         std::cout<< "to_sync thread not found";
-        return EXIT_FAILURE;
+        return FAIL_CODE;
     }
 
     Threads::sync(tid);
