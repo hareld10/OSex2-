@@ -188,6 +188,8 @@ int Threads::sum_by_id(int tid) {
         }
     }
 
+    std::cout << "tid in sum;" << tid;
+    fflush(stdout);
     if(_running_thread->id == tid){
         return _running_thread->total_quantum;
     }

@@ -26,7 +26,7 @@ int _quantum_usecs;
  */
 void signalHandler(bool block)
 {
-    std::cout<<"in signalHandler\n";
+//    std::cout<<"in signalHandler\n";
 
     std::flush(std::cout);
     if (block)
@@ -62,7 +62,7 @@ void switchThreads(int sig)
     auto nextThread = Threads::getReadyThread();
     if (nextThread == nullptr) // Ready queue is empty
     {
-        std::cout<<"line 61\n";
+//        std::cout<<"line 61\n";
 
     }
     if(currentThread != nullptr)
@@ -70,7 +70,7 @@ void switchThreads(int sig)
         int ret_val = sigsetjmp(*(currentThread->env), 1);
         if (ret_val == 1)  //sigsetjmp failed
         {
-            std::cout<<"got here from jump, returning...\n";
+//            std::cout<<"got here from jump, returning...\n";
             return;
         }
         printf("SWITCH: ret_val=%d\n", ret_val);
@@ -83,8 +83,8 @@ void switchThreads(int sig)
     nextThread->add_one_quan();
     resetTimer(_quantum_usecs);
     signalHandler(false);
-    std::cout<<"id: \n";
-    std::cout<<nextThread->id<<std::endl;
+//    std::cout<<"id: \n";
+//    std::cout<<nextThread->id<<std::endl;
 
     siglongjmp(*(nextThread->env) ,1);
 }
@@ -96,7 +96,7 @@ void switchThreads(int sig)
  */
 void resetTimer(int quantum_usecs)
 {
-    std::cout<<"in resetTimer\n";
+//    std::cout<<"in resetTimer\n";
     if (sigaction(SIGVTALRM, &sa, nullptr) < 0) {
         printf("sigaction error.");
     }
@@ -151,7 +151,7 @@ int uthread_init(int quantum_usecs)
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void)){
-    std::cout<<"in uthread_spawn\n";
+//    std::cout<<"in uthread_spawn\n";
 
     signalHandler(true);  // Block all signals
 
