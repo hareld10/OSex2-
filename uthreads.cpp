@@ -63,6 +63,7 @@ void switchThreads(int sig)
     std::cout<<"in switchThreads"<<std::endl;
 
     signalHandler(true);
+    std::flush(std::cout);
     auto currentThread = Threads::get_thread(Threads::running_thread_id());
     auto nextThread = Threads::getReadyThread();
     if (nextThread == nullptr) // Ready queue is empty
@@ -117,7 +118,6 @@ void resetTimer(int quantum_usecs)
     timer.it_value.tv_usec = quantum_usecs ;
     timer.it_interval.tv_sec = quantum_usecs ;
     timer.it_interval.tv_usec = quantum_usecs ;
-
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
     {
         //if the set timer fails, print out a system call error and exit(1)
@@ -269,6 +269,7 @@ int uthread_block(int tid){
     resetTimer(_quantum_usecs);
 
     return SUCCESS_CODE;
+
 }
 
 
