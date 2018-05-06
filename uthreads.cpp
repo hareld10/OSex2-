@@ -18,6 +18,12 @@
 int _quantum_usecs;
 
 
+#define GRN "\e[32m"
+#define RED "\x1B[31m"
+#define RESET "\x1B[0m"
+
+
+
 /* External interface */
 
 /**
@@ -26,7 +32,7 @@ int _quantum_usecs;
  */
 void signalHandler(bool block)
 {
-//    std::cout<<"in signalHandler\n";
+    std::cout<<"in signalHandler\n";
 
     std::flush(std::cout);
     if (block)
@@ -54,14 +60,14 @@ void signalHandler(bool block)
 void switchThreads(int sig)
 
 {
-    std::cout<<"in switchThreads\n";
+    std::cout<<"in switchThreads"<<std::endl;
 
     signalHandler(true);
-    std::flush(std::cout);
     auto currentThread = Threads::get_thread(Threads::running_thread_id());
     auto nextThread = Threads::getReadyThread();
     if (nextThread == nullptr) // Ready queue is empty
     {
+        std::cout<<"line 61"<<std::endl;
 //        std::cout<<"line 61\n";
 
     }
@@ -70,21 +76,26 @@ void switchThreads(int sig)
         int ret_val = sigsetjmp(*(currentThread->env), 1);
         if (ret_val == 1)  //sigsetjmp failed
         {
-//            std::cout<<"got here from jump, returning...\n";
+            std::cout<<"got here from jump, returning...\n";
             return;
         }
-        printf("SWITCH: ret_val=%d\n", ret_val);
+//        printf("SWITCH: ret_val=%d\n", ret_val);
 
     }
     Threads::setRunningThread(nextThread);
     if(currentThread != nullptr) {
         Threads::add_ready(currentThread);
     }
+
     nextThread->add_one_quan();
     resetTimer(_quantum_usecs);
     signalHandler(false);
-//    std::cout<<"id: \n";
-//    std::cout<<nextThread->id<<std::endl;
+
+    std::cout<<"id: " << nextThread->id<<std::endl;
+    std::cout<<nextThread->env<<std::endl;
+
+
+
 
     siglongjmp(*(nextThread->env) ,1);
 }
@@ -96,9 +107,9 @@ void switchThreads(int sig)
  */
 void resetTimer(int quantum_usecs)
 {
-//    std::cout<<"in resetTimer\n";
+    std::cout<<"in resetTimer"<<std::endl;
     if (sigaction(SIGVTALRM, &sa, nullptr) < 0) {
-        printf("sigaction error.");
+        std::cerr<< "sigaction error"<<std::endl;
     }
 
 
@@ -106,12 +117,17 @@ void resetTimer(int quantum_usecs)
     timer.it_value.tv_usec = quantum_usecs ;
     timer.it_interval.tv_sec = quantum_usecs ;
     timer.it_interval.tv_usec = quantum_usecs ;
+
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
-    { //if the set timer fails, print out a system call error and exit with the value 1
-        std::cout<<"reset fail";
+    {
+        //if the set timer fails, print out a system call error and exit(1)
+        std::cout<<"reset fail"<<std::endl;
         exit(1);
     }
+    std::cout<<"out resetTimer"  <<std::endl;
+
 }
+
 
 /*
  * Description: This function initializes the thread library.
@@ -135,8 +151,12 @@ int uthread_init(int quantum_usecs)
     // Install timer_handler as the signal handler for SIGVTALRM:
     sa.sa_handler = &switchThreads;
 
-
     Threads::init();
+    // Create the main thread (id = 0):
+    auto mainThread = new Thread(0, nullptr);
+    Threads::setRunningThread(mainThread);
+    Threads::add_ready(mainThread);
+
     resetTimer(quantum_usecs);
 }
 
@@ -151,7 +171,7 @@ int uthread_init(int quantum_usecs)
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void)){
-//    std::cout<<"in uthread_spawn\n";
+    std::cout<<"in uthread_spawn\n";
 
     signalHandler(true);  // Block all signals
 
@@ -188,6 +208,8 @@ int uthread_spawn(void (*f)(void)){
 */
 int uthread_terminate(int tid)
 {
+    std::cout<<"in uthread_terminate\n";
+
     signalHandler(true);  // Block all signals
 
     if(tid == 0){
@@ -208,6 +230,7 @@ int uthread_terminate(int tid)
     delete to_free;
     Threads::addTid(tid);  // Add the now free id to the id pool
     signalHandler(false);  // unBlock all signals
+    resetTimer(_quantum_usecs);
 
     return SUCCESS_CODE;
 }
@@ -226,22 +249,26 @@ int uthread_block(int tid){
     signalHandler(true);  // Block all signals
 
     if(tid == 0){
+        std::cerr<<"trying to block main thread"<<std::endl;
         return FAIL_CODE;
     }
     if(Threads::exist_by_id_blocked(tid)){
         return SUCCESS_CODE;
     }
 
+
+
     Thread* to_block = Threads::get_thread(tid);
     if (to_block == nullptr){
         return FAIL_CODE;
     }
 
+    std::cout<<RED "in block" RESET<<std::endl;
     Threads::add_blocked(to_block);
     signalHandler(false);  // unBlock all signals
+    resetTimer(_quantum_usecs);
 
     return SUCCESS_CODE;
-
 }
 
 
@@ -261,7 +288,7 @@ int uthread_resume(int tid){
     }
     Thread* to_resume = Threads::get_thread(tid);
     if(to_resume == nullptr){
-        std::cout<< "cant get thread in resume";
+        std::cerr<< "cant get thread in resume"<<std::endl;
         return FAIL_CODE;
     }
 
@@ -269,6 +296,7 @@ int uthread_resume(int tid){
     Threads::add_ready(to_resume);
 
     signalHandler(false);  // unBlock all signals
+    resetTimer(_quantum_usecs);
 
     return SUCCESS_CODE;
 }
@@ -290,12 +318,12 @@ int uthread_sync(int tid)
 {
     signalHandler(true);  // Block all signals
     if(Threads::running_thread_id() == tid || tid == 0){
-        std::cout<< "running thread calles sync";
+        std::cerr<< "running thread calles sync"<<std::endl;
         exit(FAIL_CODE);
     }
     Thread *to_sync = Threads::get_thread(tid);
     if (to_sync == nullptr){
-        std::cout<< "to_sync thread not found";
+        std::cerr<< "to_sync thread not found"<<std::endl;
         return FAIL_CODE;
     }
 
