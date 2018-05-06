@@ -177,7 +177,6 @@ int Threads::sum_all_usec() {
 }
 
 int Threads::sum_by_id(int tid) {
-
     for(Thread* i: *_ready_threads){
         if(i->id == tid){
             return i->total_quantum;
@@ -189,9 +188,7 @@ int Threads::sum_by_id(int tid) {
         }
     }
 
-
     if(_running_thread->id == tid){
-
         return _running_thread->total_quantum;
     }
     std::cout << "Error in Sum by id";
