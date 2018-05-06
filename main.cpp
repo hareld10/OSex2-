@@ -2,17 +2,17 @@
 #include <list>
 
 #include "uthreads.h"
-
+#define SECOND 1000000
 
 
 void func1(void){
-    std::cout << "Junk!" << std::endl;
+    std::cout << "Func1!" << std::endl;
     std::flush(std::cout);
     for( ; ;) { }
 }
 
 void func2(void){
-    std::cout << "Hello hello hello hello" << std::endl;
+    std::cout << "Func2!" << std::endl;
     std::flush(std::cout);
 
 
@@ -20,7 +20,7 @@ void func2(void){
 }
 
 void func3(void){
-    std::cout << "Hello World!" << std::endl;
+    std::cout << "Func3!" << std::endl;
     std::flush(std::cout);
 
 
@@ -33,7 +33,9 @@ int main(){
     int id2 = uthread_spawn(func2);
     int id3 = uthread_spawn(func3);
 
-    for( ; ; ){}
+    for( ; ; ){
+
+    }
 }
 
 
