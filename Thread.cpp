@@ -18,8 +18,7 @@ Thread::Thread(int _id, void (*f)(void)) {
     is_blocked = false;
     is_synced = false;
 
-
-
+    
     if (_id == 0) {
         pc = (address_t)0;
     }
