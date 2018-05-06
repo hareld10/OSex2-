@@ -57,6 +57,7 @@ void Threads::add_ready(Thread *thread) {
 }
 
 void Threads::add_blocked(Thread *thread) {
+
     thread->is_blocked = true;
     _blocked_threads->push_back(thread);
 
