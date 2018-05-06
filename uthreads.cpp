@@ -83,8 +83,8 @@ void switchThreads(int sig)
     nextThread->add_one_quan();
     resetTimer(_quantum_usecs);
     signalHandler(false);
-//    std::cout<<"id: \n";
-//    std::cout<<nextThread->id<<std::endl;
+    std::cout<<"id: \n";
+    std::cout<<nextThread->id<<std::endl;
 
     siglongjmp(*(nextThread->env) ,1);
 }
