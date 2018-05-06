@@ -150,8 +150,8 @@ bool Threads::exist_by_id_ready(int id) {
 int Threads::running_thread_id(){
     if (_running_thread == nullptr){
 
-        std::cout << "Returned nullptr from running_thread_id\n";
-        return -1;
+//        std::cout << "Returned nullptr from running_thread_id\n";
+        return 0;
     }
     return _running_thread->id;
 }
@@ -177,6 +177,7 @@ int Threads::sum_all_usec() {
 }
 
 int Threads::sum_by_id(int tid) {
+
     for(Thread* i: *_ready_threads){
         if(i->id == tid){
             return i->total_quantum;
@@ -188,7 +189,9 @@ int Threads::sum_by_id(int tid) {
         }
     }
 
+
     if(_running_thread->id == tid){
+
         return _running_thread->total_quantum;
     }
     std::cout << "Error in Sum by id";

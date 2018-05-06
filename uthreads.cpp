@@ -16,6 +16,7 @@
 #define FAIL_CODE (-1)
 #define SUCCESS_CODE 0
 int _quantum_usecs;
+static int total_main_quantums;
 
 
 /* External interface */
@@ -26,9 +27,9 @@ int _quantum_usecs;
  */
 void signalHandler(bool block)
 {
-    std::cout<<"in signalHandler\n";
+//    std::cout<<"in signalHandler\n";
 
-    std::flush(std::cout);
+//    std::flush(std::cout);
     if (block)
     {
         if (sigprocmask (SIG_BLOCK, &signals, nullptr) == FAIL_CODE)
@@ -62,13 +63,23 @@ void switchThreads(int sig)
     auto nextThread = Threads::getReadyThread();
     if (nextThread == nullptr) // Ready queue is empty
     {
-        std::cout<<"line 61\n";
+        std::cout<<"line 66\n";
+        total_main_quantums += 1;
 
+
+
+        resetTimer(_quantum_usecs);
+        signalHandler(false);
+        std::cout<<"id: 0\n";
+
+        siglongjmp(*(nextThread->env) ,1);
     }
+
+
     if(currentThread != nullptr)
     {
         int ret_val = sigsetjmp(*(currentThread->env), 1);
-        if (ret_val == 1)  //sigsetjmp failed
+        if (ret_val == 1)
         {
             std::cout<<"got here from jump, returning...\n";
             return;
@@ -101,16 +112,13 @@ void resetTimer(int quantum_usecs)
         printf("sigaction error.");
     }
 
-//    timer.it_value.tv_sec = 1 ;  /* first time interval, seconds part */
-//    timer.it_value.tv_usec = 0 ;/* first time interval, microseconds part */
-//    timer.it_interval.tv_sec = 3 ;  /* following time intervals, seconds part */
-//    timer.it_interval.tv_usec = 0 ; /* following time intervals, microseconds part */
 
     timer.it_value.tv_sec = quantum_usecs ;
     timer.it_value.tv_usec = quantum_usecs ;
     timer.it_interval.tv_sec = quantum_usecs ;
     timer.it_interval.tv_usec = quantum_usecs ;
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
+
     { //if the set timer fails, print out a system call error and exit with the value 1
         std::cout<<"reset fail";
         exit(1);
@@ -127,6 +135,7 @@ void resetTimer(int quantum_usecs)
 */
 int uthread_init(int quantum_usecs)
 {
+    total_main_quantums = 0;
     if(quantum_usecs <= 0)
     {
         std::cout<<"line 121\n";
@@ -141,6 +150,7 @@ int uthread_init(int quantum_usecs)
 
 
     Threads::init();
+    auto mainThread = Thread(0, 0);
     resetTimer(quantum_usecs);
 }
 
@@ -345,6 +355,7 @@ int uthread_get_total_quantums(){
 */
 int uthread_get_quantums(int tid)
 {
+
     return Threads::sum_by_id(tid);
 }
 
