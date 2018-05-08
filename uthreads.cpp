@@ -14,6 +14,8 @@
 #define MAX_THREAD_NUM 100 /* maximal number of threads */
 #define STACK_SIZE 4096 /* stack size per thread (in bytes) */
 #define FAIL_CODE (-1)
+#define EXIT_FAIL_CODE 1
+
 #define SUCCESS_CODE 0
 int _quantum_usecs;
 int total_quantum;
@@ -23,31 +25,26 @@ int total_quantum;
 #define RESET "\x1B[0m"
 # define USEC_FACTOR 1000000
 
-
+#define SYSTEM_ERROR_MSG "system error: "
+#define LIB_ERROR_MSG "thread library error: "
 
 /* External interface */
 
 
 
-
-void freeMemory()
+void freeAndExit(int errorCode)
 {
     Threads::free();
-}
-
-
-void freeAndExit(int code)
-{
-    freeMemory();
-    exit(code);
+    exit(errorCode);
 }
 
 
 
 
 /**
- *  Either blocks or unblocks all the signals according to the boolean value
- * @param block true iff we want to block all signals
+ *  Either blocks or unblocks the signals according to the boolean value
+ *  If the blocking fails, we exit and print an error message
+ *  @param block true iff we want to block all signals
  */
 void signalHandler(bool block)
 {
@@ -55,8 +52,8 @@ void signalHandler(bool block)
     {
         if (sigprocmask (SIG_BLOCK, &signals, nullptr) == FAIL_CODE)
         {
-            std::cerr<<"Failed in blocking signals";
-            freeAndExit(1);
+            std::cerr<<SYSTEM_ERROR_MSG<<"Failed in blocking signals"<<std::endl;
+            freeAndExit(EXIT_FAIL_CODE);
         }
         isblocked = true;
     }
@@ -64,10 +61,8 @@ void signalHandler(bool block)
     {
         if (sigprocmask (SIG_UNBLOCK, &signals, nullptr) == FAIL_CODE)
         {
-            std::cerr<<"Failed in un-blocking signals";
-            freeAndExit(1);
-
-            exit(1);
+            std::cerr<<SYSTEM_ERROR_MSG<<"Failed in blocking signals"<<std::endl;
+            freeAndExit(EXIT_FAIL_CODE);
         }
         isblocked = false;
     }
@@ -81,11 +76,11 @@ void signalHandler(bool block)
 void switchThreads(int sig)
 
 {
-//    signalHandler(true);
-
     auto currentThread = Threads::get_thread(Threads::running_thread_id());
     auto nextThread = Threads::getReadyThread();
-    if (nextThread == nullptr) // Ready queue is empty
+
+    // Ready queue is empty, keep the running thread for one more quantum:
+    if (nextThread == nullptr)
     {
         currentThread->add_one_quan();
         total_quantum++;
@@ -95,7 +90,7 @@ void switchThreads(int sig)
 
     if(currentThread != nullptr)
     {
-        int ret_val = sigsetjmp(*(currentThread->env), 1);
+        int ret_val = sigsetjmp(*(currentThread->env), 1);  // Save current state
         if (ret_val == 1)
         {
             currentThread->add_one_quan();
@@ -103,6 +98,8 @@ void switchThreads(int sig)
             signalHandler(false);
             return;
         }
+
+        // Add the old thread to its' rightful place:
         if(!currentThread->is_blocked)
         {
             Threads::add_ready(currentThread);
@@ -111,49 +108,47 @@ void switchThreads(int sig)
         {
             Threads::add_blocked(currentThread);
         }
-//        std::cout<<currentThread->id<<"  "<< nextThread->id<<std::endl;
     }
+    // Set the new thread and increment quantum counters:
     Threads::setRunningThread(nextThread);
-
     nextThread->add_one_quan();
     total_quantum++;
 
     resetTimer(_quantum_usecs);
-//    signalHandler(false);
-    siglongjmp(*(nextThread->env) ,1);
+    siglongjmp(*(nextThread->env) ,1);  // Jump
 }
 
 
 
 /**
- * Switch between the running thread and the next ready thread in line
+ * Switch between the running thread and the next ready thread in line, in the
+ * case where the running thread no longer exists and therefor there's no need
+ * to add it to the running list.
  */
 void switchTerminatedThreads(int sig)
 
 {
-//    signalHandler(true);
     auto nextThread = Threads::getReadyThread();
-
     Threads::setRunningThread(nextThread);
-
     nextThread->add_one_quan();
     total_quantum++;
-
     resetTimer(_quantum_usecs);
-//    signalHandler(false);
     siglongjmp(*(nextThread->env) ,1);
 }
 
 
 /**
- * Resets the time count for this process when either, the quantom for a thread ends, or threads are switched due to
- * termination or blocking of the running thread.
+ * Resets the time count for this process when either, the quantom for a
+ * thread ends, or threads are switched due to  termination or blocking of
+ * the running thread.
  */
 void resetTimer(int quantum_usecs)
 {
     signalHandler(true);
-    if (sigaction(SIGVTALRM, &sa, nullptr) < 0) {
-        std::cerr<< "sigaction error"<<std::endl;
+    if (sigaction(SIGVTALRM, &sa, nullptr) < 0)
+    {
+        std::cerr<<SYSTEM_ERROR_MSG<<"sigaction error"<<std::endl;
+        freeAndExit(EXIT_FAIL_CODE);
     }
 
     timer.it_value.tv_sec = (quantum_usecs / USEC_FACTOR );
@@ -164,8 +159,8 @@ void resetTimer(int quantum_usecs)
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
     {
         //if the set timer fails, print out a system call error and exit(1)
-        std::cout<<"reset fail"<<std::endl;
-        exit(1);
+        std::cerr<<SYSTEM_ERROR_MSG<<"setittimer error"<<std::endl;
+        freeAndExit(EXIT_FAIL_CODE);
     }
     signalHandler(false);
 }
@@ -182,11 +177,13 @@ void resetTimer(int quantum_usecs)
 */
 int uthread_init(int quantum_usecs)
 {
+
     isblocked = false;
+
     signalHandler(true);
     if(quantum_usecs <= 0)
     {
-        std::cout<<"lnegative usec number"<<std::endl;
+        std::cerr<<LIB_ERROR_MSG<<"non-positive usec number received"<<std::endl;
         return FAIL_CODE;
     }
     Thread::set_quantum_length(quantum_usecs);

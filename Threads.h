@@ -26,10 +26,6 @@ public:
     static std::deque<Thread*> *_blocked_threads;
     static Thread *_running_thread;
 
-    static int num_of_new;
-    static int num_of_delete;
-
-
 
 
     static void init();
@@ -37,8 +33,6 @@ public:
     static void addTid(int tid);
     static void add_ready(Thread* thread);
     static void add_blocked(Thread* thread);
-    static int remove_blocked_thread(int id);
-    static int remove_ready_thread(int id);
     static int sum_all_usec();
     static int sum_by_id(int tid);
     static void sync(int tid);
