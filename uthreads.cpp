@@ -27,8 +27,7 @@ int _quantum_usecs;
 void signalHandler(bool block)
 {
 //    std::cout<<"in signalHandler\n";
-
-    std::flush(std::cout);
+//    std::flush(std::cout);
     if (block)
     {
         if (sigprocmask (SIG_BLOCK, &signals, nullptr) == FAIL_CODE)
@@ -54,10 +53,10 @@ void signalHandler(bool block)
 void switchThreads(int sig)
 
 {
-    std::cout<<"in switchThreads\n";
+//    std::cout<<"in switchThreads"<<std::endl;
 
     signalHandler(true);
-    std::flush(std::cout);
+//    std::flush(std::cout);
     auto currentThread = Threads::get_thread(Threads::running_thread_id());
     auto nextThread = Threads::getReadyThread();
     if (nextThread == nullptr) // Ready queue is empty
@@ -73,7 +72,7 @@ void switchThreads(int sig)
 //            std::cout<<"got here from jump, returning...\n";
             return;
         }
-        printf("SWITCH: ret_val=%d\n", ret_val);
+//        printf("SWITCH: ret_val=%d\n", ret_val);
 
     }
     Threads::setRunningThread(nextThread);
@@ -83,9 +82,10 @@ void switchThreads(int sig)
     nextThread->add_one_quan();
     resetTimer(_quantum_usecs);
     signalHandler(false);
-    std::cout<<"id: \n";
-    std::cout<<nextThread->id<<std::endl;
-
+//    std::cout<<"id: \n";
+//    std::cout<<nextThread->id<<std::endl;
+//    std::cout<<std::endl;
+//    std::cout.flush();
     siglongjmp(*(nextThread->env) ,1);
 }
 
@@ -101,6 +101,10 @@ void resetTimer(int quantum_usecs)
         printf("sigaction error.");
     }
 
+//    timer.it_value.tv_sec = 1 ;  /* first time interval, seconds part */
+//    timer.it_value.tv_usec = 0 ;/* first time interval, microseconds part */
+//    timer.it_interval.tv_sec = 3 ;  /* following time intervals, seconds part */
+//    timer.it_interval.tv_usec = 0 ; /* following time intervals, microseconds part */
 
     timer.it_value.tv_sec = quantum_usecs ;
     timer.it_value.tv_usec = quantum_usecs ;
@@ -108,7 +112,8 @@ void resetTimer(int quantum_usecs)
     timer.it_interval.tv_usec = quantum_usecs ;
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
     { //if the set timer fails, print out a system call error and exit with the value 1
-        std::cout<<"reset fail";
+        std::cout<<"reset fail"<<std::endl;
+        std::flush(std::cout);
         exit(1);
     }
 }
@@ -125,7 +130,7 @@ int uthread_init(int quantum_usecs)
 {
     if(quantum_usecs <= 0)
     {
-        std::cout<<"line 121\n";
+        std::cerr<<"line 121\n";
 
         return FAIL_CODE;
     }
@@ -157,7 +162,7 @@ int uthread_spawn(void (*f)(void)){
 
     // check if not exceeded MAX NUM
     if(Threads::total_num_of_threads == MAX_THREAD_NUM){
-        std::cout<<"line 153\n";
+        std::cerr<<"line 153\n";
 
         return FAIL_CODE;
     }
@@ -256,12 +261,12 @@ int uthread_resume(int tid){
     signalHandler(true);  // Block all signals
 
     if(((Threads::running_thread_id()== tid)||(Threads::exist_by_id_ready(tid)))||Threads::is_synced(tid)){
-        std::cout<<"line 247\n";
+        std::cerr<<"line 247\n";
         return 0;
     }
     Thread* to_resume = Threads::get_thread(tid);
     if(to_resume == nullptr){
-        std::cout<< "cant get thread in resume";
+        std::cerr<< "cant get thread in resume";
         return FAIL_CODE;
     }
 
@@ -290,12 +295,12 @@ int uthread_sync(int tid)
 {
     signalHandler(true);  // Block all signals
     if(Threads::running_thread_id() == tid || tid == 0){
-        std::cout<< "running thread calles sync";
+        std::cerr<< "running thread calles sync";
         exit(FAIL_CODE);
     }
     Thread *to_sync = Threads::get_thread(tid);
     if (to_sync == nullptr){
-        std::cout<< "to_sync thread not found";
+        std::cerr<< "to_sync thread not found";
         return FAIL_CODE;
     }
 

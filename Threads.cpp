@@ -133,7 +133,7 @@ Thread *Threads::get_thread(int tid) {
         return _running_thread;
     }
     // Thread not found:
-    std::cout<<"line135 Threads.cpp";
+    std::cout<<"line135 Threads.cpp"<<std::endl;
     std::flush(std::cout);
     return nullptr;
 }
@@ -188,12 +188,11 @@ int Threads::sum_by_id(int tid) {
         }
     }
 
-    std::cout << "tid in sum;" << tid;
-    fflush(stdout);
+    std::cout << "tid in sum;" << tid <<std::endl;
     if(_running_thread->id == tid){
         return _running_thread->total_quantum;
     }
-    std::cout << "Error in Sum by id";
+    std::cout << "Error in Sum by id"<<std::endl;
     return FAIL_CODE;
 }
 

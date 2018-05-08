@@ -6,13 +6,14 @@
 
 
 void func1(void){
-    std::cout << "Func1!" << std::endl;
+//    std::cout << "Func1!" << std::endl;
     std::flush(std::cout);
     for( ; ;) { }
 }
 
 void func2(void){
-    std::cout << "Func2!" << std::endl;
+
+//    std::cout << "Func2!" << std::endl;
     std::flush(std::cout);
 
 
@@ -20,7 +21,7 @@ void func2(void){
 }
 
 void func3(void){
-    std::cout << "Func3!" << std::endl;
+//    std::cout << "Func3!" << std::endl;
     std::flush(std::cout);
 
 
