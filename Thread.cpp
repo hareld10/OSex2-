@@ -1,31 +1,30 @@
-//
-// Created by hareld10 on 4/29/18.
-//
+
 #include "Thread.h"
-
-
 #include <iostream>
 
-
-int Thread::quantum_length=0;
-
-
+/**
+ * Constructor
+ * @param _id unique id for each thread
+ * @param f the function in which the thread run
+ */
 Thread::Thread(int _id, void (*f)(void)) {
 
     address_t sp, pc;
     id = _id;
-    total_quantum = 1;
-    stack = new char[STACK_SIZE];
+    total_quantum = 1; // init to 1
+    stack = new char[STACK_SIZE]; // as the desired size
     is_blocked = false;
-    is_synced = false;
 
-    if (_id == 0) {
+    if (_id == 0) { // case main thread
         pc = (address_t)0;
     }
     else
     {
+        // gives the function location
         pc = (address_t) f;
     }
+
+    // give the stack pointer position
     sp = (address_t) stack + STACK_SIZE - sizeof(address_t);
     // save state and save mask
     env = (sigjmp_buf *) new sigjmp_buf();
@@ -39,13 +38,6 @@ Thread::Thread(int _id, void (*f)(void)) {
     sigemptyset(&((*env)->__saved_mask));
 }
 
-void Thread::set_id(int _id) {
-    id = _id;
-}
-
-void Thread::set_quantum_length(int length) {
-    quantum_length = length;
-}
 
 address_t Thread::translate_address(address_t addr) {
     address_t ret;
@@ -56,14 +48,18 @@ address_t Thread::translate_address(address_t addr) {
     return ret;
 }
 
+/**
+ * add one quantum unit to total_quantum
+ */
 void Thread::add_one_quan() {
     total_quantum++;
 }
-
+/**
+ * Destructor - deleting allocated space
+ */
 Thread::~Thread()
 {
     delete env;
     delete stack;
 
 }
-
