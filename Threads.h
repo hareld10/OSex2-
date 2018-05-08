@@ -26,6 +26,9 @@ public:
     static std::deque<Thread*> *_blocked_threads;
     static Thread *_running_thread;
 
+    static int num_of_new;
+    static int num_of_delete;
+
 
 
 

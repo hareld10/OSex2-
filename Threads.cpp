@@ -7,7 +7,6 @@
 
 int Threads::total_num_of_threads = 0;
 std::priority_queue<int, std::vector<int>,  std::greater<int>> *Threads::pq;
-//std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
 std::vector<std::vector<int>*> *Threads::syncing;
 std::deque<Thread*> *Threads::_ready_threads;
 std::deque<Thread*> *Threads::_blocked_threads;
@@ -22,10 +21,10 @@ void Threads::init() {
     pq = new std::priority_queue<int, std::vector<int>,  std::greater<int>>();
     for (int i = 1; i < MAX_THREAD_NUM; i ++)
     {
+
         pq->push(i);
         (*syncing).push_back( new std::vector<int>());
     }
-
 }
 
 /**
@@ -33,21 +32,22 @@ void Threads::init() {
  */
 void Threads::free() {
     // Delete the ready threads vector:
-    for (Thread* t:(*_ready_threads)){
+    for (Thread* t:(*_ready_threads))
+    {
         delete t;
     }
     delete _ready_threads;
     _running_thread = nullptr;
 
     // Delete the blocked threads vector:
-    for (Thread* t:(*_blocked_threads)){
+    for (Thread* t:(*_blocked_threads))
+    {
         delete t;
     }
     delete _blocked_threads;
     _blocked_threads = nullptr;
-
     // Delete syncing vector:
-    int i=1;
+    int i=0;
     while(i < MAX_THREAD_NUM)
     {
         delete (*syncing)[i];
@@ -63,49 +63,53 @@ void Threads::add_ready(Thread *thread) {
 
 }
 
-void Threads::add_blocked(Thread *thread) {
+void Threads::add_blocked(Thread *thread)
+{
 
     thread->is_blocked = true;
     _blocked_threads->push_back(thread);
 
 }
 
-int Threads::remove_blocked_thread(int id)
-{
-    auto iter = _blocked_threads->begin();
-    for( ; iter != _blocked_threads->end(); ++iter)
-    {
-        if ((*iter)->id == id)
-        {
-            Thread* temp = *iter;
-            _blocked_threads->erase(iter);
-            delete(temp);
-            return EXIT_SUCCESS;
-        }
-    }
-    // Thread not found:
-    return FAIL_CODE;
-}
-
-int Threads::remove_ready_thread(int id) {
-    if (id <= 0)
-    {
-        return FAIL_CODE;
-    }
-    auto iter = _ready_threads->begin();
-    for( ; iter != _ready_threads->end(); ++iter)
-    {
-        if ((*iter)->id == id)
-        {
-            Thread* temp = *iter;
-            _ready_threads->erase(iter);
-            delete(temp);
-            return EXIT_SUCCESS;
-        }
-    }
-    // Thread not found:
-    return FAIL_CODE;
-}
+//int Threads::remove_blocked_thread(int id)
+//{
+//    auto iter = _blocked_threads->begin();
+//    for( ; iter != _blocked_threads->end(); ++iter)
+//    {
+//        if ((*iter)->id == id)
+//        {Threads::num_of_delete++;
+//
+//            Thread* temp = *iter;
+//            _blocked_threads->erase(iter);
+//            delete(temp);
+//            return EXIT_SUCCESS;
+//        }
+//    }
+//    // Thread not found:
+//    return FAIL_CODE;
+//}
+//
+//int Threads::remove_ready_thread(int id)
+//{
+//    if (id <= 0)
+//    {
+//        return FAIL_CODE;
+//    }
+//    auto iter = _ready_threads->begin();
+//    for( ; iter != _ready_threads->end(); ++iter)
+//    {
+//        if ((*iter)->id == id)
+//        {Threads::num_of_delete++;
+//
+//            Thread* temp = *iter;
+//            _ready_threads->erase(iter);
+//            delete(temp);
+//            return EXIT_SUCCESS;
+//        }
+//    }
+//    // Thread not found:
+//    return FAIL_CODE;
+//}
 
 /**
  * Removes the thread from its' vector and returns it.

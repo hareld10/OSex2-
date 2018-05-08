@@ -201,7 +201,6 @@ int uthread_init(int quantum_usecs)
 
     Threads::init();  // Initialize threads
     auto mainThread = new Thread(0, nullptr); // Create the main thread (id = 0)
-
     Threads::setRunningThread(mainThread);
     total_quantum = 1;
     resetTimer(quantum_usecs);
@@ -266,7 +265,6 @@ int uthread_terminate(int tid)
         return FAIL_CODE;
     }
     delete to_terminate;
-
 
     std::vector<std::vector<int>*> tmp = *Threads::syncing;
     std::vector<int>* to_free = new std::vector<int>(*tmp[tid]);
