@@ -1,9 +1,19 @@
-//
-// Created by mstav on 4/29/18.
-//
+
+
 #include "Threads.h"
 
 
+/**
+ * Class Threads holds all the threads and handled theme, it servers as a data base
+ *  Fields:
+    total_num_of_threads - hold how many threads have been generated
+    pq - holds a priority queue to handle the ids
+    syncing - a vector holding a vector of all the threads who made sync to the
+    vector in first place
+    _ready_threads - holds all the ready threads
+    _blocked_threads - holds all the blocked threads
+    _running_thread - a pointer to the running thread
+ */
 
 int Threads::total_num_of_threads = 0;
 std::priority_queue<int, std::vector<int>,  std::greater<int>> *Threads::pq;
@@ -12,6 +22,9 @@ std::deque<Thread*> *Threads::_ready_threads;
 std::deque<Thread*> *Threads::_blocked_threads;
 Thread *Threads::_running_thread;
 
+/**
+ * Init() initialize all the elements in class.
+ */
 void Threads::init() {
     _ready_threads = new std::deque<Thread*>;
     _blocked_threads = new std::deque<Thread*>;
@@ -21,14 +34,15 @@ void Threads::init() {
     pq = new std::priority_queue<int, std::vector<int>,  std::greater<int>>();
     for (int i = 1; i < MAX_THREAD_NUM; i ++)
     {
-
+        /// Pushing indexes to the priority queue
         pq->push(i);
+        /// Pushing new vectors to the yncing vector
         (*syncing).push_back( new std::vector<int>());
     }
 }
 
 /**
- *  Destructor
+ *  Destructor - De-Allocates all the allocated memory
  */
 void Threads::free() {
     // Delete the ready threads vector:
@@ -58,58 +72,24 @@ void Threads::free() {
     delete pq;
 }
 
+/**
+ * Add thread to ready vector
+ * @param thread
+ */
 void Threads::add_ready(Thread *thread) {
     _ready_threads->push_back(thread);
 
 }
-
+/**
+ * Add thread to blocked vector
+ * @param thread
+ */
 void Threads::add_blocked(Thread *thread)
 {
-
     thread->is_blocked = true;
     _blocked_threads->push_back(thread);
 
 }
-
-//int Threads::remove_blocked_thread(int id)
-//{
-//    auto iter = _blocked_threads->begin();
-//    for( ; iter != _blocked_threads->end(); ++iter)
-//    {
-//        if ((*iter)->id == id)
-//        {Threads::num_of_delete++;
-//
-//            Thread* temp = *iter;
-//            _blocked_threads->erase(iter);
-//            delete(temp);
-//            return EXIT_SUCCESS;
-//        }
-//    }
-//    // Thread not found:
-//    return FAIL_CODE;
-//}
-//
-//int Threads::remove_ready_thread(int id)
-//{
-//    if (id <= 0)
-//    {
-//        return FAIL_CODE;
-//    }
-//    auto iter = _ready_threads->begin();
-//    for( ; iter != _ready_threads->end(); ++iter)
-//    {
-//        if ((*iter)->id == id)
-//        {Threads::num_of_delete++;
-//
-//            Thread* temp = *iter;
-//            _ready_threads->erase(iter);
-//            delete(temp);
-//            return EXIT_SUCCESS;
-//        }
-//    }
-//    // Thread not found:
-//    return FAIL_CODE;
-//}
 
 /**
  * Removes the thread from its' vector and returns it.
@@ -150,6 +130,11 @@ Thread *Threads::get_thread(int tid) {
     return nullptr;
 }
 
+/**
+ * checks if vector exists in ready vector by id
+ * @param id
+ * @return
+ */
 bool Threads::exist_by_id_ready(int id) {
     for(Thread* i: *_ready_threads){
         if(i->id == id){
@@ -159,6 +144,10 @@ bool Threads::exist_by_id_ready(int id) {
     return false;
 }
 
+/**
+ * gets the running thread id
+ * @return
+ */
 int Threads::running_thread_id(){
     if (_running_thread == nullptr){
 
@@ -168,6 +157,11 @@ int Threads::running_thread_id(){
     return _running_thread->id;
 }
 
+/**
+ * checks if vector exists in blocked vector by id
+ * @param id
+ * @return
+ */
 bool Threads::exist_by_id_blocked(int id) {
     for(Thread* i: *_blocked_threads){
         if(i->id == id){
@@ -188,6 +182,11 @@ int Threads::sum_all_usec() {
     return sum+_running_thread->total_quantum;
 }
 
+/**
+ * get thread total quantum by id
+ * @param id
+ * @return
+ */
 int Threads::sum_by_id(int tid) {
     if(_ready_threads == nullptr)
     {
@@ -211,18 +210,30 @@ int Threads::sum_by_id(int tid) {
     return FAIL_CODE;
 }
 
+/**
+ * sync the tid to the running thread
+ * @param tid
+ */
 void Threads::sync(int tid) {
     int tmp = running_thread_id();
     (*syncing)[tid]->push_back(tmp);
 
 }
 
+/**
+ * get next id to use for generated thread
+ * @return
+ */
 int Threads::get_next_id() {
     int ret = Threads::pq->top();
     pq->pop();
     return ret;
 }
 
+/**
+ * free syncing vector
+ * @param tid
+ */
 void Threads::free_syncing_threads(int tid) {
     (*(*syncing)[tid]).clear();
 }
@@ -242,21 +253,38 @@ Thread* Threads::getReadyThread() {
 
 }
 
+/**
+ * set the running thread
+ * @param thread
+ */
 void Threads::setRunningThread(Thread *thread)
 {
     _running_thread = thread;
 
 }
 
+/**
+ * get the pointer to the running thread
+ * @return
+ */
 Thread *Threads::get_running_thread() {
     return _running_thread;
 }
 
+/**
+ * add id to the priority queue of the ids
+ * @param tid
+ */
 void Threads::addTid(int tid)
 {
     pq->push(tid);
 }
 
+/**
+ * get pointer to the thread by id
+ * @param tid
+ * @return
+ */
 Thread *Threads::get_thread_ptr(int tid) {
     auto iter = _blocked_threads->begin();
     for( ; iter != _blocked_threads->end(); ++iter)
@@ -285,6 +313,11 @@ Thread *Threads::get_thread_ptr(int tid) {
     return nullptr;
 }
 
+/**
+ * checks if thread is synced or not
+ * @param tid
+ * @return
+ */
 bool Threads::is_synced(int tid) {
     auto vec = Threads::syncing->begin();
     while(vec != Threads::syncing->end()) {
@@ -295,8 +328,7 @@ bool Threads::is_synced(int tid) {
             }
             id++;
         }
-    vec++;
+        vec++;
     }
     return false;
 }
-
