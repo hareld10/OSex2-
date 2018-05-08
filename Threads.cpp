@@ -6,7 +6,7 @@
 
 
 int Threads::total_num_of_threads = 0;
-std::priority_queue<int, std::vector<int>,  std::greater<int>> Threads::pq;
+std::priority_queue<int, std::vector<int>,  std::greater<int>> *Threads::pq;
 //std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
 std::vector<std::vector<int>*> *Threads::syncing;
 std::deque<Thread*> *Threads::_ready_threads;
@@ -19,10 +19,10 @@ void Threads::init() {
     syncing = new std::vector<std::vector<int>*>;
 
     (*syncing).push_back( new std::vector<int>());
-    pq = *new std::priority_queue<int, std::vector<int>,  std::greater<int>>();
+    pq = new std::priority_queue<int, std::vector<int>,  std::greater<int>>();
     for (int i = 1; i < MAX_THREAD_NUM; i ++)
     {
-        pq.push(i);
+        pq->push(i);
         (*syncing).push_back( new std::vector<int>());
     }
 
@@ -31,7 +31,7 @@ void Threads::init() {
 /**
  *  Destructor
  */
-Threads::~Threads() {
+void Threads::free() {
     // Delete the ready threads vector:
     for (Thread* t:(*_ready_threads)){
         delete t;
@@ -46,13 +46,16 @@ Threads::~Threads() {
     delete _blocked_threads;
     _blocked_threads = nullptr;
 
+    // Delete syncing vector:
     int i=1;
     while(i < MAX_THREAD_NUM)
     {
         delete (*syncing)[i];
         ++i;
     }
-    //todo if we allocated this instance with "new"- add "delete this"
+    delete syncing;
+    delete _running_thread; // Delete ready vector:
+    delete pq;
 }
 
 void Threads::add_ready(Thread *thread) {
@@ -182,6 +185,10 @@ int Threads::sum_all_usec() {
 }
 
 int Threads::sum_by_id(int tid) {
+    if(_ready_threads == nullptr)
+    {
+        std::cout<<"nullptr in ready threads"<<std::endl;
+    }
     for(Thread* i: *_ready_threads){
         if(i->id == tid){
             return i->total_quantum;
@@ -193,8 +200,6 @@ int Threads::sum_by_id(int tid) {
         }
     }
 
-    std::cout << "tid in sum;" << tid;
-    fflush(stdout);
     if(_running_thread->id == tid){
         return _running_thread->total_quantum;
     }
@@ -209,8 +214,8 @@ void Threads::sync(int tid) {
 }
 
 int Threads::get_next_id() {
-    int ret = Threads::pq.top();
-    pq.pop();
+    int ret = Threads::pq->top();
+    pq->pop();
     return ret;
 }
 
@@ -245,7 +250,7 @@ Thread *Threads::get_running_thread() {
 
 void Threads::addTid(int tid)
 {
-    pq.push(tid);
+    pq->push(tid);
 }
 
 Thread *Threads::get_thread_ptr(int tid) {

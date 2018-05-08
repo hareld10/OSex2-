@@ -20,15 +20,17 @@ class Threads
 
 public:
     static int total_num_of_threads;
-    static std::priority_queue<int, std::vector<int>,  std::greater<int>> pq;
-//    static std::vector<int> *syncing[];
+    static std::priority_queue<int, std::vector<int>,  std::greater<int>> *pq;
     static std::vector<std::vector<int>*> *syncing;
     static std::deque<Thread*> *_ready_threads;
     static std::deque<Thread*> *_blocked_threads;
     static Thread *_running_thread;
 
+
+
+
     static void init();
-    ~Threads();
+    static void free();
     static void addTid(int tid);
     static void add_ready(Thread* thread);
     static void add_blocked(Thread* thread);

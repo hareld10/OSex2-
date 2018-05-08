@@ -21,7 +21,6 @@ Thread::Thread(int _id, void (*f)(void)) {
 
     if (_id == 0) {
         pc = (address_t)0;
-//        sp = (address_t)0;
     }
     else
     {
@@ -59,5 +58,12 @@ address_t Thread::translate_address(address_t addr) {
 
 void Thread::add_one_quan() {
     total_quantum++;
+}
+
+Thread::~Thread()
+{
+    delete env;
+    delete stack;
+
 }
 

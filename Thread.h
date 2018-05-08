@@ -25,7 +25,7 @@ class Thread
 
 public:
     explicit Thread(int _id, void (*f)(void));
-    ~Thread()= default;//todo maybe implement this later
+    ~Thread();
     void set_id(int id);
     static void set_quantum_length(int length);
     static address_t translate_address(address_t addr);

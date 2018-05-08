@@ -27,29 +27,52 @@ int total_quantum;
 
 /* External interface */
 
+
+
+
+void freeMemory()
+{
+    Threads::free();
+}
+
+
+void freeAndExit(int code)
+{
+    freeMemory();
+    exit(code);
+}
+
+
+
+
 /**
  *  Either blocks or unblocks all the signals according to the boolean value
  * @param block true iff we want to block all signals
  */
 void signalHandler(bool block)
 {
-    if (block)
+    if (block && !isblocked)
     {
-        if (sigprocmask (SIG_BLOCK, &signals, NULL) == FAIL_CODE)
+        if (sigprocmask (SIG_BLOCK, &signals, nullptr) == FAIL_CODE)
         {
             std::cerr<<"Failed in blocking signals";
-            exit(1);
+            freeAndExit(1);
         }
+        isblocked = true;
     }
-    else
+    else if(!block && isblocked)
     {
-        if (sigprocmask (SIG_UNBLOCK, &signals, NULL) == FAIL_CODE)
+        if (sigprocmask (SIG_UNBLOCK, &signals, nullptr) == FAIL_CODE)
         {
             std::cerr<<"Failed in un-blocking signals";
+            freeAndExit(1);
+
             exit(1);
         }
+        isblocked = false;
     }
 }
+
 
 
 /**
@@ -58,7 +81,7 @@ void signalHandler(bool block)
 void switchThreads(int sig)
 
 {
-    signalHandler(true);
+//    signalHandler(true);
 
     auto currentThread = Threads::get_thread(Threads::running_thread_id());
     auto nextThread = Threads::getReadyThread();
@@ -96,7 +119,7 @@ void switchThreads(int sig)
     total_quantum++;
 
     resetTimer(_quantum_usecs);
-    signalHandler(false);
+//    signalHandler(false);
     siglongjmp(*(nextThread->env) ,1);
 }
 
@@ -108,7 +131,7 @@ void switchThreads(int sig)
 void switchTerminatedThreads(int sig)
 
 {
-    signalHandler(true);
+//    signalHandler(true);
     auto nextThread = Threads::getReadyThread();
 
     Threads::setRunningThread(nextThread);
@@ -117,7 +140,7 @@ void switchTerminatedThreads(int sig)
     total_quantum++;
 
     resetTimer(_quantum_usecs);
-    signalHandler(false);
+//    signalHandler(false);
     siglongjmp(*(nextThread->env) ,1);
 }
 
@@ -148,6 +171,7 @@ void resetTimer(int quantum_usecs)
 }
 
 
+
 /*
  * Description: This function initializes the thread library.
  * You may assume that this function is called before any other thread library
@@ -158,6 +182,7 @@ void resetTimer(int quantum_usecs)
 */
 int uthread_init(int quantum_usecs)
 {
+    isblocked = false;
     signalHandler(true);
     if(quantum_usecs <= 0)
     {
@@ -232,7 +257,7 @@ int uthread_terminate(int tid)
 
     if(tid == 0){
         signalHandler(false); // todo free memory allocations
-        exit(EXIT_SUCCESS);
+        freeAndExit(EXIT_SUCCESS);
     }
 
     Thread* to_terminate = Threads::get_thread(tid);
@@ -259,7 +284,7 @@ int uthread_terminate(int tid)
     if(id == tid)
     {
 //        std::cout<<RED "Terminated myself\n" <<id<<'\n'<< RESET;
-
+        signalHandler(false);  // unBlock all signals
         switchTerminatedThreads(2);
         return SUCCESS_CODE;
     }
@@ -286,19 +311,22 @@ int uthread_block(int tid){
     if(tid == 0){
         signalHandler(false);
 //        std::cerr<<"trying to block main thread"<<std::endl;
-        return FAIL_CODE;
+        freeAndExit(FAIL_CODE);
+
+//        return FAIL_CODE;
     }
     if(Threads::exist_by_id_blocked(tid)){
         signalHandler(false);
-//        std::cout<<"In exist_by_id_blocked"<<std::endl;
-        return SUCCESS_CODE;
+        freeAndExit(SUCCESS_CODE);
     }
 
 
     Thread* to_block = Threads::get_thread(tid);
-    if (to_block == nullptr){
+    if (to_block == nullptr)
+    {
         signalHandler(false);
-        return FAIL_CODE;
+        std::cout<<"add message"<<std::endl; // todo add msg
+        freeAndExit(FAIL_CODE);
     }
 
 //    std::cout<<RED "blocking thread number" << tid << RESET <<std::endl;
@@ -309,7 +337,6 @@ int uthread_block(int tid){
         switchThreads(26);
     }
     return SUCCESS_CODE;
-
 }
 
 
@@ -366,13 +393,14 @@ int uthread_sync(int tid)
     if(Threads::running_thread_id() == tid || tid == 0){
         signalHandler(false);
         std::cerr<< "running thread calles sync"<<std::endl;
-        exit(FAIL_CODE);
+        freeAndExit(FAIL_CODE);
     }
     auto to_sync = Threads::get_thread_ptr(tid);
     if (to_sync == nullptr){
         signalHandler(false);
         std::cerr<< "to_sync thread not found"<<std::endl;
-        return FAIL_CODE;
+        freeAndExit(FAIL_CODE);
+
     }
 
     Threads::sync(tid);

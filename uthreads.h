@@ -18,7 +18,7 @@
 static struct sigaction sa;
 static struct itimerval timer;
 static sigset_t signals;
-
+static bool isblocked;
 
 
 
