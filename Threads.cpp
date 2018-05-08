@@ -142,8 +142,6 @@ Thread *Threads::get_thread(int tid) {
         return _running_thread;
     }
     // Thread not found:
-    std::cout<<"line135 Threads.cpp";
-    std::flush(std::cout);
     return nullptr;
 }
 

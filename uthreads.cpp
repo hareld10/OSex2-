@@ -35,7 +35,7 @@ void signalHandler(bool block)
 {
     if (block)
     {
-        if (sigprocmask (SIG_BLOCK, &signals, nullptr) == FAIL_CODE)
+        if (sigprocmask (SIG_BLOCK, &signals, NULL) == FAIL_CODE)
         {
             std::cerr<<"Failed in blocking signals";
             exit(1);
@@ -43,7 +43,7 @@ void signalHandler(bool block)
     }
     else
     {
-        if (sigprocmask (SIG_UNBLOCK, &signals, nullptr) == FAIL_CODE)
+        if (sigprocmask (SIG_UNBLOCK, &signals, NULL) == FAIL_CODE)
         {
             std::cerr<<"Failed in un-blocking signals";
             exit(1);
@@ -73,21 +73,22 @@ void switchThreads(int sig)
     if(currentThread != nullptr)
     {
         int ret_val = sigsetjmp(*(currentThread->env), 1);
-        if (ret_val == 1)  // todo check the meaning of this
+        if (ret_val == 1)
         {
-            std::cout<<"got here from jump, returning...\n";
             currentThread->add_one_quan();
             total_quantum++;
             signalHandler(false);
             return;
         }
-        if(!currentThread->is_blocked) {
+        if(!currentThread->is_blocked)
+        {
             Threads::add_ready(currentThread);
         }
-        else{
+        else
+        {
             Threads::add_blocked(currentThread);
-            std::cerr << "Size of blocked in switch "<< Threads::_blocked_threads->size() << "\n";
         }
+//        std::cout<<currentThread->id<<"  "<< nextThread->id<<std::endl;
     }
     Threads::setRunningThread(nextThread);
 
@@ -98,8 +99,6 @@ void switchThreads(int sig)
     signalHandler(false);
     siglongjmp(*(nextThread->env) ,1);
 }
-
-
 
 
 
@@ -123,11 +122,6 @@ void switchTerminatedThreads(int sig)
 }
 
 
-
-
-
-
-
 /**
  * Resets the time count for this process when either, the quantom for a thread ends, or threads are switched due to
  * termination or blocking of the running thread.
@@ -135,17 +129,14 @@ void switchTerminatedThreads(int sig)
 void resetTimer(int quantum_usecs)
 {
     signalHandler(true);
-
-    std::cout<<"in resetTimer"<<std::endl;
     if (sigaction(SIGVTALRM, &sa, nullptr) < 0) {
         std::cerr<< "sigaction error"<<std::endl;
     }
 
-
-    timer.it_value.tv_sec = quantum_usecs / USEC_FACTOR ;
-    timer.it_value.tv_usec = quantum_usecs % USEC_FACTOR ;
-    timer.it_interval.tv_sec = quantum_usecs / USEC_FACTOR ;
-    timer.it_interval.tv_usec = quantum_usecs % USEC_FACTOR ;
+    timer.it_value.tv_sec = (quantum_usecs / USEC_FACTOR );
+    timer.it_value.tv_usec = (quantum_usecs % USEC_FACTOR );
+    timer.it_interval.tv_sec = (quantum_usecs / USEC_FACTOR) ;
+    timer.it_interval.tv_usec = (quantum_usecs % USEC_FACTOR) ;
 
     if (setitimer(ITIMER_VIRTUAL, &timer, nullptr) == FAIL_CODE)
     {
@@ -153,10 +144,7 @@ void resetTimer(int quantum_usecs)
         std::cout<<"reset fail"<<std::endl;
         exit(1);
     }
-    std::cout<<"out resetTimer"  <<std::endl;
     signalHandler(false);
-
-
 }
 
 
@@ -170,10 +158,10 @@ void resetTimer(int quantum_usecs)
 */
 int uthread_init(int quantum_usecs)
 {
+    signalHandler(true);
     if(quantum_usecs <= 0)
     {
-        std::cout<<"line 121\n";
-
+        std::cout<<"lnegative usec number"<<std::endl;
         return FAIL_CODE;
     }
     Thread::set_quantum_length(quantum_usecs);
@@ -182,17 +170,18 @@ int uthread_init(int quantum_usecs)
     // Install timer_handler as the signal handler for SIGVTALRM:
     sa.sa_handler = &switchThreads;
 
+    //define blocking set:
     sigemptyset(&signals);
     sigaddset(&signals, SIGVTALRM);
 
-
-    Threads::init();
+    Threads::init();  // Initialize threads
     auto mainThread = new Thread(0, nullptr); // Create the main thread (id = 0)
 
     Threads::setRunningThread(mainThread);
     total_quantum = 1;
     resetTimer(quantum_usecs);
-
+    signalHandler(false);
+    return EXIT_SUCCESS;
 }
 
 /*
@@ -206,24 +195,19 @@ int uthread_init(int quantum_usecs)
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void)){
-    std::cout<<"in spawn"<<std::endl;
-
     signalHandler(true);  // Block all signals
 
-    // check if not exceeded MAX NUM
+    // check if not exceeded MAX NUM:
     if(Threads::total_num_of_threads == MAX_THREAD_NUM){
-        std::cout<<"line 153\n";
+        std::cout << "Max thread number exceeded"<<std::endl;
         signalHandler(false);
         return FAIL_CODE;
     }
     Threads::total_num_of_threads++;
 
-    //get next id for new Thread
-    int id = Threads::get_next_id();
-
+    int id = Threads::get_next_id();  //get next id for new Thread
     auto *new_thread = new Thread(id, f);
-    // Add to ready list
-    Threads::add_ready(new_thread);
+    Threads::add_ready(new_thread);   // Add to ready list
 
     signalHandler(false);  // Free signals
     return id;
@@ -243,23 +227,13 @@ int uthread_spawn(void (*f)(void)){
 */
 int uthread_terminate(int tid)
 {
-    std::cout<<"in uthread_terminate\n";
-    int id = Threads::running_thread_id();
-    if (id == 6)
-    {
-        int uu = 6;
-    }
-
-
-
     signalHandler(true);  // Block all signals
+    int id = Threads::running_thread_id();
 
     if(tid == 0){
         signalHandler(false); // todo free memory allocations
         exit(EXIT_SUCCESS);
-
     }
-
 
     Thread* to_terminate = Threads::get_thread(tid);
     if (to_terminate == nullptr){
@@ -284,7 +258,7 @@ int uthread_terminate(int tid)
     Threads::addTid(tid);  // Add the now free id to the id pool
     if(id == tid)
     {
-        std::cout<<RED "Terminated myself\n" <<id<<'\n'<< RESET;
+//        std::cout<<RED "Terminated myself\n" <<id<<'\n'<< RESET;
 
         switchTerminatedThreads(2);
         return SUCCESS_CODE;
@@ -311,12 +285,12 @@ int uthread_block(int tid){
 
     if(tid == 0){
         signalHandler(false);
-        std::cerr<<"trying to block main thread"<<std::endl;
+//        std::cerr<<"trying to block main thread"<<std::endl;
         return FAIL_CODE;
     }
     if(Threads::exist_by_id_blocked(tid)){
         signalHandler(false);
-        std::cerr<<"In exist_by_id_blocked"<<std::endl;
+//        std::cout<<"In exist_by_id_blocked"<<std::endl;
         return SUCCESS_CODE;
     }
 
@@ -327,11 +301,11 @@ int uthread_block(int tid){
         return FAIL_CODE;
     }
 
-    std::cout<<RED "blocking thread number" << tid << RESET <<std::endl;
+//    std::cout<<RED "blocking thread number" << tid << RESET <<std::endl;
     Threads::add_blocked(to_block);
     resetTimer(_quantum_usecs);
     signalHandler(false);  // unBlock all signals
-    if(Threads::running_thread_id() == tid  ){
+    if(Threads::running_thread_id() == tid){
         switchThreads(26);
     }
     return SUCCESS_CODE;
@@ -347,7 +321,6 @@ int uthread_block(int tid){
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_resume(int tid){
-    std::cout<<GRN "in resume" RESET <<std::endl;
     signalHandler(true);  // Block all signals
 
     bool t1 = Threads::running_thread_id()== tid;
@@ -355,18 +328,6 @@ int uthread_resume(int tid){
     bool t3 = Threads::is_synced(tid);
     if((t1||t2)||t3){
         signalHandler(false);
-        if(t1){
-            std::cout<<"line 247- 1\n";
-
-        }
-        if(t2){
-            std::cout<<"line 247- 2\n";
-
-        }
-        if(t3){
-            std::cout<<"line 247- 3\n";
-
-        }
         return 0;
     }
     Thread* to_resume = Threads::get_thread(tid);
@@ -399,7 +360,7 @@ int uthread_resume(int tid){
 */
 int uthread_sync(int tid)
 {
-    std::cout<<RED "in sync, syncing id "<<tid<< RESET <<std::endl;
+//    std::cout<<RED "in sync, syncing id "<<tid<< RESET <<std::endl;
 
     signalHandler(true);  // Block all signals
     if(Threads::running_thread_id() == tid || tid == 0){
@@ -407,7 +368,6 @@ int uthread_sync(int tid)
         std::cerr<< "running thread calles sync"<<std::endl;
         exit(FAIL_CODE);
     }
-//    Thread *to_sync = Threads::get_thread(tid);
     auto to_sync = Threads::get_thread_ptr(tid);
     if (to_sync == nullptr){
         signalHandler(false);
@@ -420,6 +380,7 @@ int uthread_sync(int tid)
     Threads::add_blocked(cur_running);
     signalHandler(false);  // unBlock all signals
     switchThreads(2);
+    return SUCCESS_CODE;
 
 }
 
