@@ -15,17 +15,19 @@ Thread::Thread(int _id, void (*f)(void)) {
     address_t sp, pc;
     id = _id;
     total_quantum = 1;
+    stack = new char[STACK_SIZE];
     is_blocked = false;
     is_synced = false;
 
     if (_id == 0) {
         pc = (address_t)0;
+//        sp = (address_t)0;
     }
     else
     {
-        sp = (address_t) stack + STACK_SIZE - sizeof(address_t);
         pc = (address_t) f;
     }
+    sp = (address_t) stack + STACK_SIZE - sizeof(address_t);
     // save state and save mask
     env = (sigjmp_buf *) new sigjmp_buf();
     int ret_val = sigsetjmp((*env), 1);

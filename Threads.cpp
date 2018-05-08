@@ -7,7 +7,8 @@
 
 int Threads::total_num_of_threads = 0;
 std::priority_queue<int, std::vector<int>,  std::greater<int>> Threads::pq;
-std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
+//std::vector<int>*  Threads::syncing[MAX_THREAD_NUM];
+std::vector<std::vector<int>*> *Threads::syncing;
 std::deque<Thread*> *Threads::_ready_threads;
 std::deque<Thread*> *Threads::_blocked_threads;
 Thread *Threads::_running_thread;
@@ -15,11 +16,14 @@ Thread *Threads::_running_thread;
 void Threads::init() {
     _ready_threads = new std::deque<Thread*>;
     _blocked_threads = new std::deque<Thread*>;
+    syncing = new std::vector<std::vector<int>*>;
+
+    (*syncing).push_back( new std::vector<int>());
     pq = *new std::priority_queue<int, std::vector<int>,  std::greater<int>>();
     for (int i = 1; i < MAX_THREAD_NUM; i ++)
     {
         pq.push(i);
-        syncing[i] = new std::vector<int>();
+        (*syncing).push_back( new std::vector<int>());
     }
 
 }
@@ -45,7 +49,7 @@ Threads::~Threads() {
     int i=1;
     while(i < MAX_THREAD_NUM)
     {
-        delete syncing[i];
+        delete (*syncing)[i];
         ++i;
     }
     //todo if we allocated this instance with "new"- add "delete this"
@@ -57,6 +61,7 @@ void Threads::add_ready(Thread *thread) {
 }
 
 void Threads::add_blocked(Thread *thread) {
+
     thread->is_blocked = true;
     _blocked_threads->push_back(thread);
 
@@ -120,6 +125,7 @@ Thread *Threads::get_thread(int tid) {
     for( ; iter != _ready_threads->end(); ++iter)
     {
         // Found thread, add it to the ready list:
+        int is_correct = (*iter)->id;
         if ((*iter)->id == tid)
         {
             Thread* temp = *iter;
@@ -127,13 +133,14 @@ Thread *Threads::get_thread(int tid) {
             return temp;
         }
     }
+    int num = running_thread_id();
 
     if (tid == running_thread_id())
     {
         return _running_thread;
     }
     // Thread not found:
-    std::cout<<"line135 Threads.cpp"<<std::endl;
+    std::cout<<"line135 Threads.cpp";
     std::flush(std::cout);
     return nullptr;
 }
@@ -188,7 +195,8 @@ int Threads::sum_by_id(int tid) {
         }
     }
 
-    std::cout << "tid in sum;" << tid <<std::endl;
+    std::cout << "tid in sum;" << tid;
+    fflush(stdout);
     if(_running_thread->id == tid){
         return _running_thread->total_quantum;
     }
@@ -197,7 +205,8 @@ int Threads::sum_by_id(int tid) {
 }
 
 void Threads::sync(int tid) {
-    syncing[tid]->push_back(running_thread_id());
+    int tmp = running_thread_id();
+    (*syncing)[tid]->push_back(tmp);
 
 }
 
@@ -208,8 +217,7 @@ int Threads::get_next_id() {
 }
 
 void Threads::free_syncing_threads(int tid) {
-    (*syncing[tid]).clear();
-
+    (*(*syncing)[tid]).clear();
 }
 
 /**
@@ -271,12 +279,16 @@ Thread *Threads::get_thread_ptr(int tid) {
 }
 
 bool Threads::is_synced(int tid) {
-    for(auto vec: Threads::syncing){
-        for(auto id: *vec){
-            if(id == tid){
+    auto vec = Threads::syncing->begin();
+    while(vec != Threads::syncing->end()) {
+        auto id = (*vec)->begin();
+        while (id != (*vec)->end()) {
+            if (*id == tid) {
                 return true;
             }
+            id++;
         }
+    vec++;
     }
     return false;
 }
