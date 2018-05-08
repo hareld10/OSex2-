@@ -124,7 +124,6 @@ Thread *Threads::get_thread(int tid) {
     iter = _ready_threads->begin();
     for( ; iter != _ready_threads->end(); ++iter)
     {
-
         // Found thread, add it to the ready list:
         int is_correct = (*iter)->id;
         if ((*iter)->id == tid)
@@ -133,7 +132,6 @@ Thread *Threads::get_thread(int tid) {
             _ready_threads->erase(iter);
             return temp;
         }
-
     }
     int num = running_thread_id();
 
@@ -195,7 +193,7 @@ int Threads::sum_by_id(int tid) {
         }
     }
 
-//    std::cout << "tid in sum;\n" << tid;
+    std::cout << "tid in sum;" << tid;
     fflush(stdout);
     if(_running_thread->id == tid){
         return _running_thread->total_quantum;
